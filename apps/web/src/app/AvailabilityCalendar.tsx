@@ -1,0 +1,73 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+
+type Range = { checkIn: string; checkOut: string; status: "pending" | "booked" };
+type ScheduleResponse = { data?: { ranges: Range[] }; error?: { message: string } };
+
+const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const iso = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+const addDays = (date: Date, days: number) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+
+export default function AvailabilityCalendar() {
+  const router = useRouter();
+  const today = useMemo(() => new Date(), []);
+  const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const [ranges, setRanges] = useState<Range[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const from = iso(new Date(month.getFullYear(), month.getMonth(), 1));
+    const to = iso(new Date(month.getFullYear(), month.getMonth() + 1, 1));
+    fetch(`/api/v1/schedule?from=${from}&to=${to}`, { cache: "no-store", signal: controller.signal })
+      .then(async (response) => ({ response, body: await response.json() as ScheduleResponse }))
+      .then(({ response, body }) => {
+        if (!response.ok) throw new Error(body.error?.message || "Availability is temporarily unavailable.");
+        setRanges(body.data?.ranges ?? []);
+      })
+      .catch((reason: unknown) => { if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "Availability is temporarily unavailable."); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [month]);
+
+  const first = new Date(month.getFullYear(), month.getMonth(), 1);
+  const totalDays = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+  const cells = Array.from({ length: first.getDay() + totalDays }, (_, index) => index < first.getDay() ? null : new Date(month.getFullYear(), month.getMonth(), index - first.getDay() + 1));
+  const todayIso = iso(today);
+  const changeMonth = (offset: number) => {
+    setLoading(true);
+    setError("");
+    setMonth(new Date(month.getFullYear(), month.getMonth() + offset, 1));
+  };
+  const statusFor = (dateIso: string) => {
+    const matches = ranges.filter((range) => range.checkIn <= dateIso && range.checkOut > dateIso);
+    return matches.some((range) => range.status === "booked") ? "booked" : matches.some((range) => range.status === "pending") ? "pending" : "open";
+  };
+  const chooseDate = (date: Date) => router.push(`/book?checkIn=${iso(date)}&checkOut=${iso(addDays(date, 1))}&guests=2`);
+  const currentMonth = month.getFullYear() === today.getFullYear() && month.getMonth() === today.getMonth();
+
+  return <div className="calendar-card">
+    <div className="calendar-toolbar">
+      <div><p className="eyebrow">Live availability</p><h3>{month.toLocaleDateString("en-PH", { month: "long", year: "numeric" })}</h3></div>
+      <div className="calendar-controls">
+        <button type="button" aria-label="Previous month" disabled={currentMonth} onClick={() => changeMonth(-1)}>←</button>
+        <button type="button" aria-label="Next month" onClick={() => changeMonth(1)}>→</button>
+      </div>
+    </div>
+    {error ? <div className="calendar-notice" role="status">{error} You can still contact us directly to check your dates.</div> : null}
+    <div className="calendar-grid" aria-busy={loading}>
+      {weekdays.map((day) => <span className="weekday" key={day}>{day}</span>)}
+      {cells.map((date, index) => {
+        if (!date) return <span className="calendar-empty" aria-hidden="true" key={`empty-${index}`} />;
+        const dateIso = iso(date); const past = dateIso < todayIso; const status = past ? "past" : statusFor(dateIso);
+        return <button type="button" key={dateIso} disabled={past || status === "booked" || loading} data-status={status} aria-label={`${date.toLocaleDateString("en-PH", { dateStyle: "long" })}: ${status}`} onClick={() => chooseDate(date)}>
+          <strong>{date.getDate()}</strong><small>{loading ? "Checking" : status === "open" ? "Open" : status === "pending" ? "Pending" : status === "booked" ? "Booked" : "Past"}</small>
+        </button>;
+      })}
+    </div>
+    <div className="calendar-legend"><span data-status="open">Open · select to book</span><span data-status="pending">Pending</span><span data-status="booked">Booked</span></div>
+  </div>;
+}
