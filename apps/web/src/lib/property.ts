@@ -13,7 +13,6 @@ export const propertyProfile = {
   email: "merryshien.gepitulan@gmail.com",
   facebookUrl: "https://www.facebook.com/profile.php?id=61592545910229",
   messengerUrl: "https://m.me/61592545910229",
-  whatsappUrl: "https://wa.me/639952606412",
 } as const;
 
 export const galleryImages = [

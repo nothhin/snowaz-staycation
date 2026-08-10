@@ -18,7 +18,7 @@ export default function Home() {
         <p>1BR for 2 guests · 2BR for 4+ guests · Mandaue City</p>
         <h1>Your cozy escape,<br /><em>away from home.</em></h1>
         <span>Stay. Relax. Create memories.</span>
-        <div className="hero-actions"><a className="gold-button" href="#availability">View availability</a><a className="ghost-button" href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">Chat on WhatsApp</a></div>
+        <div className="hero-actions"><a className="gold-button" href="#availability">View availability</a><a className="ghost-button" href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Chat on Messenger</a></div>
       </div>
     </section>
 
@@ -50,7 +50,7 @@ export default function Home() {
     </section>
 
     <section className="availability-section" id="availability" data-reveal>
-      <div className="availability-copy"><p className="eyebrow">Plan your visit</p><h2>Find your perfect date.</h2><p>Choose any open date to start your booking request. Pending dates may become available again; confirmed stays remain securely blocked without revealing guest information.</p><div className="contact-card"><strong>Prefer personal assistance?</strong><a href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp {propertyProfile.phoneDisplay}</a></div></div>
+      <div className="availability-copy"><p className="eyebrow">Plan your visit</p><h2>Find your perfect date.</h2><p>Choose any open date to start your booking request. Pending dates may become available again; confirmed stays remain securely blocked without revealing guest information.</p><div className="contact-card"><strong>Prefer personal assistance?</strong><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Message SnowAZ on Facebook</a><a href={`tel:${propertyProfile.phoneHref}`}>Call {propertyProfile.phoneDisplay}</a></div></div>
       <AvailabilityCalendar />
     </section>
 
@@ -59,7 +59,7 @@ export default function Home() {
       <div className="location-image"><Image src="/images/snowaz/dining-wide.jpg" alt="Elegant SnowAZ Staycation dining area" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
     </section>
 
-    <section className="snow-contact" id="contact" data-reveal><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={180} height={180} /><div><p className="eyebrow">Ready when you are</p><h2>Let’s plan your stay.</h2><p>For final rates, bedroom access, parking arrangements, flexible arrival times, and immediate availability confirmation, connect directly with SnowAZ Staycation.</p><div className="contact-links"><a href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a><a href={`tel:${propertyProfile.phoneHref}`}>{propertyProfile.phoneDisplay}</a><a href={`mailto:${propertyProfile.email}`}>{propertyProfile.email}</a><a href={propertyProfile.facebookUrl} target="_blank" rel="noreferrer">Facebook page</a></div></div></section>
+    <section className="snow-contact" id="contact" data-reveal><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={180} height={180} /><div><p className="eyebrow">Ready when you are</p><h2>Let’s plan your stay.</h2><p>For final rates, bedroom access, parking arrangements, flexible arrival times, and immediate availability confirmation, connect directly with SnowAZ Staycation.</p><div className="contact-links"><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Messenger</a><a href={`tel:${propertyProfile.phoneHref}`}>{propertyProfile.phoneDisplay}</a><a href={`mailto:${propertyProfile.email}`}>{propertyProfile.email}</a><a href={propertyProfile.facebookUrl} target="_blank" rel="noreferrer">Facebook page</a></div></div></section>
 
     <footer className="snow-footer"><a className="snow-brand" href="#home"><span><strong>SnowAZ Staycation</strong><small>{propertyProfile.tagline}</small></span></a><p>{propertyProfile.address}</p><div className="snow-footer-meta"><nav aria-label="Legal"><Link href="/privacy">Privacy Notice</Link><Link href="/cookies">Cookie Notice</Link></nav><p>© {new Date().getFullYear()} SnowAZ Staycation</p></div></footer>
   </main>;
