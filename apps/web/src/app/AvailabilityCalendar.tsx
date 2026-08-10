@@ -22,15 +22,46 @@ export default function AvailabilityCalendar() {
     const controller = new AbortController();
     const from = iso(new Date(month.getFullYear(), month.getMonth(), 1));
     const to = iso(new Date(month.getFullYear(), month.getMonth() + 1, 1));
-    fetch(`/api/v1/schedule?from=${from}&to=${to}`, { cache: "no-store", signal: controller.signal })
-      .then(async (response) => ({ response, body: await response.json() as ScheduleResponse }))
-      .then(({ response, body }) => {
+    let requestInFlight = false;
+
+    const refresh = async (showLoading = false) => {
+      if (requestInFlight) return;
+      requestInFlight = true;
+      if (showLoading) setLoading(true);
+
+      try {
+        const response = await fetch(`/api/v1/schedule?from=${from}&to=${to}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const body = await response.json() as ScheduleResponse;
         if (!response.ok) throw new Error(body.error?.message || "Availability is temporarily unavailable.");
         setRanges(body.data?.ranges ?? []);
-      })
-      .catch((reason: unknown) => { if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "Availability is temporarily unavailable."); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => controller.abort();
+        setError("");
+      } catch (reason: unknown) {
+        if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "Availability is temporarily unavailable.");
+      } finally {
+        requestInFlight = false;
+        if (showLoading && !controller.signal.aborted) setLoading(false);
+      }
+    };
+
+    const refreshSilently = () => { void refresh(false); };
+    const refreshWhenVisible = () => { if (document.visibilityState === "visible") refreshSilently(); };
+
+    void refresh(true);
+    const interval = window.setInterval(refreshSilently, 15_000);
+    window.addEventListener("focus", refreshSilently);
+    window.addEventListener("snowaz:availability-changed", refreshSilently);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      controller.abort();
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshSilently);
+      window.removeEventListener("snowaz:availability-changed", refreshSilently);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [month]);
 
   const first = new Date(month.getFullYear(), month.getMonth(), 1);

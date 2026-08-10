@@ -20,6 +20,7 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const idempotencyKey = useRef(crypto.randomUUID());
+  const availabilityNotified = useRef(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -33,6 +34,13 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [onClose]);
+
+  useEffect(() => {
+    if (state.status === "success" && !availabilityNotified.current) {
+      availabilityNotified.current = true;
+      window.dispatchEvent(new Event("snowaz:availability-changed"));
+    }
+  }, [state.status]);
 
   return <div className="booking-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="booking-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} ref={dialogRef}>
