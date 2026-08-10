@@ -7,7 +7,7 @@ const displayFont = Cormorant_Garamond({ variable: "--font-display", subsets: ["
 
 export const metadata: Metadata = {
   title: { default: "SnowAZ Staycation | Condo Rental in Mandaue City", template: "%s | SnowAZ Staycation" },
-  description: "Relax, stay, and enjoy a cozy condo escape at SnowAZ Staycation in Urban Deca Homes Banilad, Mandaue City.",
+  description: "Book a fully furnished two-bedroom SnowAZ Staycation condo for 5–8 guests at Urban Deca Homes Banilad, Mandaue City.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
