@@ -128,6 +128,31 @@
 .compactPanel > p:not(.eyebrow) { color: #748086; font-size: 11px; line-height: 1.7; }
 .compactPanel button { margin-top: auto; min-height: 38px; padding: 0 15px; border: 0; background: #ddd8d0; color: #858a8c; font-size: 9px; font-weight: 800; }
 .compactPanel > span { margin-top: auto; padding: 7px 10px; background: #f5f1eb; color: #536269; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.calendarPanel { margin-top:24px; }
+.calendarControls { display:flex; gap:8px; }
+.calendarControls button { width:40px; height:40px; border:1px solid #e0d3c4; border-radius:50%; background:#fff; color:#3c342d; cursor:pointer; }
+.adminCalendarGrid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:7px; margin-top:24px; }
+.calendarWeekday { padding:6px; color:#8b8178; font-size:8px; font-weight:800; text-align:center; text-transform:uppercase; }
+.adminCalendarGrid button,.adminCalendarGrid>span:not(.calendarWeekday) { min-height:88px; border:1px solid #ece2d7; border-radius:12px; background:#fff; }
+.adminCalendarGrid button { padding:10px; display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between; color:#3c342d; cursor:pointer; }
+.adminCalendarGrid button:disabled { cursor:default; opacity:.62; }
+.adminCalendarGrid button strong { font-size:15px; }
+.adminCalendarGrid button small { font-size:8px; font-weight:800; text-transform:uppercase; }
+.adminCalendarGrid button[data-status="pending"] { border-color:#e7c47f; background:#fff6df; }
+.adminCalendarGrid button[data-status="confirmed"] { border-color:#9ec2aa; background:#edf8f1; }
+.calendarLegend { display:flex; flex-wrap:wrap; gap:16px; margin-top:17px; font-size:9px; }
+.calendarLegend span::before { content:""; width:9px; height:9px; display:inline-block; margin-right:6px; border-radius:50%; background:#eee3d7; }
+.calendarLegend span[data-status="pending"]::before { background:#e7c47f; }.calendarLegend span[data-status="confirmed"]::before { background:#78a589; }
+.calendarModalBackdrop { position:fixed; z-index:120; inset:0; padding:24px; display:grid; place-items:center; background:rgba(39,31,25,.58); backdrop-filter:blur(4px); }
+.calendarModal { width:min(720px,100%); max-height:88vh; overflow:auto; padding:28px; border-radius:20px; background:#fffaf3; box-shadow:0 30px 90px rgba(30,22,17,.3); }
+.calendarModal>header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding-bottom:18px; border-bottom:1px solid #e8ddd1; }
+.calendarModal h2 { margin:3px 0 0; font-family:var(--font-display),serif; font-size:34px; font-weight:600; }
+.calendarModal>header button { width:42px; height:42px; border:1px solid #e0d3c4; border-radius:50%; background:transparent; font-size:26px; cursor:pointer; }
+.calendarModal>article { padding:20px 0; border-bottom:1px solid #e8ddd1; }
+.calendarModal>article>div:first-child { display:flex; align-items:center; justify-content:space-between; gap:14px; }
+.calendarModal>article>div strong { font-family:var(--font-display),serif; font-size:25px; }.calendarModal>article>div span { color:#8b642c; font-size:9px; font-weight:800; text-transform:uppercase; }
+.calendarModal dl { display:grid; grid-template-columns:repeat(2,1fr); gap:13px; margin:16px 0 0; }.calendarModal dt { color:#8b8178; font-size:8px; font-weight:800; text-transform:uppercase; }.calendarModal dd { margin:3px 0 0; font-size:11px; overflow-wrap:anywhere; }
+.adminBackLink { align-self:center; padding:12px 18px; border:1px solid #e0d3c4; border-radius:999px; color:#8b642c; font-size:10px; font-weight:800; }
 
 @media (max-width: 1100px) {
   .dashboardShell { grid-template-columns: 78px minmax(0, 1fr); }
@@ -175,6 +200,12 @@
   .depositColumn,:global(.deposit-admin-actions) { justify-items:start; }
   :global(.deposit-admin-actions form) { justify-content:flex-start; flex-wrap:wrap; }
   :global(.deposit-admin-actions small) { text-align:left; }
+  .adminCalendarGrid { gap:4px; }
+  .adminCalendarGrid button,.adminCalendarGrid>span:not(.calendarWeekday) { min-height:62px; padding:6px; border-radius:8px; }
+  .adminCalendarGrid button small { font-size:6px; }
+  .calendarModalBackdrop { padding:0; align-items:end; }
+  .calendarModal { width:100%; max-height:92vh; padding:22px 18px; border-radius:20px 20px 0 0; }
+  .calendarModal dl { grid-template-columns:1fr; }
 }
 
 @media (max-width: 390px) {
