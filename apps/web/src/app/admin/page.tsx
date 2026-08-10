@@ -53,7 +53,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
 
     return <main className={styles.dashboardShell}>
       <aside className={styles.sidebar}>
-        <Link className={styles.adminBrand} href="/"><span>AZ</span><div><strong>SnowAZ</strong><small>Property admin</small></div></Link>
+        <Link className={styles.adminBrand} href="/"><Image src="/images/snowaz/logo.jpg" alt="" width={48} height={48} /><div><strong>SnowAZ</strong><small>Property admin</small></div></Link>
         <AdminNav activeClassName={styles.activeNav} />
         <div className={styles.sidebarFooter}><span className={styles.statusDot} /><div><strong>Live operations</strong><AdminLiveRefresh /></div></div>
       </aside>

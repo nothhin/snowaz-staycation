@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { LoginForm } from "./LoginForm";
 import styles from "./login.module.css";
@@ -9,7 +10,7 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
   const { error } = await searchParams;
   return <main className={styles.shell}>
     <section className={styles.card}>
-      <Link href="/" className={styles.brand}><span>AZ</span><div><strong>SnowAZ Staycation</strong><small>Secure property administration</small></div></Link>
+      <Link href="/" className={styles.brand}><Image src="/images/snowaz/logo.jpg" alt="" width={48} height={48} /><div><strong>SnowAZ Staycation</strong><small>Secure property administration</small></div></Link>
       <div className={styles.copy}><p>STAFF PORTAL</p><h1>Welcome back.</h1><span>Sign in with the staff account issued by the property administrator.</span></div>
       {error === "not-authorized" ? <p className={styles.error}>This account is not an active SnowAZ staff account.</p> : null}
       <LoginForm />

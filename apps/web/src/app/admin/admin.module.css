@@ -181,3 +181,81 @@
   .metricsGrid { grid-template-columns: 1fr; }
   .adminIdentity div { display: none; }
 }
+
+/* SnowAZ guest-brand visual system */
+.dashboardShell { background:radial-gradient(circle at 90% 0,rgba(216,166,162,.2),transparent 28%),#fbf6ef; color:#302a25; }
+.sidebar { width:auto; background:#3c342d; padding:28px 20px; box-shadow:12px 0 40px rgba(61,48,38,.08); }
+.adminBrand { padding:0 8px 28px; border-color:rgba(255,255,255,.14); }
+.adminBrand img { width:48px; height:48px; border-radius:50%; object-fit:cover; box-shadow:0 0 0 3px rgba(255,255,255,.12); }
+.adminBrand strong { font-size:24px; font-weight:500; }
+.adminBrand small { color:#efd4ae; }
+.sidebar nav { gap:6px; }
+.sidebar nav a { min-height:46px; border-radius:12px; color:rgba(255,255,255,.68); }
+.sidebar nav a:hover,.sidebar nav .activeNav { background:rgba(239,212,174,.13); color:#fff; }
+.sidebar nav .activeNav { box-shadow:inset 3px 0 #d8a6a2; }
+.sidebarFooter { border-color:rgba(255,255,255,.14); }
+.statusDot { background:#d8a6a2; box-shadow:0 0 0 4px rgba(216,166,162,.16); }
+.workspace { background:transparent; }
+.topbar { min-height:82px; padding:0 clamp(20px,4vw,48px); border-color:#e8ddd1; background:rgba(255,253,250,.88); backdrop-filter:blur(14px); }
+.adminIdentity > span { width:42px; height:42px; background:#f3e5dc; color:#8b642c; }
+.adminIdentity form button { min-height:38px; padding:0 14px; border:1px solid #e8ddd1; border-radius:999px; color:#8b642c; }
+.content { padding:52px clamp(22px,4.6vw,68px) 100px; }
+.welcome { padding:12px 0 8px; }
+.eyebrow { color:#8b642c; letter-spacing:.2em; }
+.welcome h1 { color:#302a25; font-size:clamp(48px,6vw,78px); letter-spacing:-.035em; }
+.welcome > div:first-child > p:last-child { color:#746a61; font-size:14px; }
+.liveBadge { border:1px solid rgba(183,138,67,.2); border-left:3px solid #b78a43; border-radius:14px; background:rgba(255,253,250,.72); box-shadow:0 14px 34px rgba(75,55,37,.06); }
+.liveBadge strong { color:#5e7d68; }
+.metricsGrid { gap:18px; margin:38px 0 24px; }
+.metricsGrid article { min-height:160px; padding:24px; border:1px solid rgba(154,130,106,.2); border-radius:18px; background:#fffdfa; box-shadow:0 18px 42px rgba(75,55,37,.07); }
+.metricsGrid article:first-child { background:#40362f; color:white; border-color:#40362f; }
+.metricsGrid article:first-child > span,.metricsGrid article:first-child > small { color:rgba(255,255,255,.65); }
+.metricsGrid article > span { color:#8b642c; }
+.metricsGrid article > strong { font-size:46px; }
+.panel,.ratesSection,.inventorySection,.compactPanel { border:1px solid rgba(154,130,106,.22); border-radius:20px; background:#fffdfa; box-shadow:0 22px 55px rgba(75,55,37,.07); }
+.panel { padding:30px; }
+.panelHeading h2,.sectionHeading h2,.compactPanel h2 { color:#302a25; }
+.countBadge { padding:8px 12px; background:#f3e5dc; color:#8b642c; }
+.bookingFilters { padding:16px; border-radius:14px; background:#f6eee5; }
+.bookingFilters input,.bookingFilters select,.addRoomForm input,.addRoomForm select,.inlineForm select,:global(.deposit-admin-actions input) { border-color:#e0d3c4; border-radius:10px; background:#fffdfa; }
+.reservationList article { padding:17px 0; border-color:#eee4d8; }
+.reservationList b { border-radius:999px; }
+.bookingDetails summary { color:#8b642c; }
+.bookingDetails dl { border-radius:10px; background:#f6eee5; }
+.depositBadge { border-radius:999px; }
+:global(.deposit-admin-actions button),:global(.deposit-admin-actions a) { min-height:38px; border-radius:999px; background:#b78a43; padding:0 14px; transition:transform .18s ease,background .18s ease; }
+:global(.deposit-admin-actions button:hover),:global(.deposit-admin-actions a:hover) { background:#8b642c; transform:translateY(-1px); }
+:global(.deposit-admin-actions .deposit-danger) { background:#9b4d42; }
+.twoColumn { gap:24px; margin-top:24px; }
+.checklist li > span { background:#f3e5dc; color:#8b642c; }
+.ratesSection,.inventorySection { margin-top:24px; padding:32px; }
+.rateGrid { gap:18px; }
+.rateCard { overflow:hidden; border-color:#e8ddd1; border-radius:16px; background:#fff; box-shadow:0 12px 30px rgba(75,55,37,.06); }
+.rateContent button,.addRoomForm button,.inlineForm button { border-radius:999px; background:#b78a43; }
+.addRoomForm { border-radius:16px; background:#f6eee5; }
+.tableWrap { border:1px solid #eee4d8; border-radius:14px; }
+.tableWrap th { background:#f6eee5; color:#746a61; }
+.tableWrap td { border-color:#eee4d8; }
+.compactPanel { padding:30px; }
+.compactPanel > span { border-radius:999px; background:#f3e5dc; color:#8b642c; }
+.successNotice,.errorNotice { border-radius:12px; }
+
+@media (max-width:1100px) {
+  .adminBrand img { width:42px; height:42px; }
+}
+@media (max-width:720px) {
+  .topbar { min-height:74px; }
+  .mobileMenu { border-radius:50%; border-color:#e8ddd1; color:#3c342d; }
+  .mobileDrawer { background:#3c342d; }
+  .content { padding:32px 16px 72px; }
+  .welcome { gap:20px; }
+  .welcome h1 { font-size:52px; }
+  .liveBadge { width:100%; max-width:none; }
+  .metricsGrid { gap:12px; }
+  .metricsGrid article { min-height:136px; border-radius:15px; }
+  .panel,.ratesSection,.inventorySection,.compactPanel { border-radius:16px; }
+  .panel,.ratesSection,.inventorySection { padding:20px; }
+  .bookingFilters { padding:12px; }
+  .bookingRequestList { max-height:none; }
+  :global(.deposit-admin-actions button),:global(.deposit-admin-actions a) { min-height:42px; }
+}
