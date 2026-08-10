@@ -4,11 +4,13 @@ import { redirect } from "next/navigation";
 import { bookingEnquirySchema } from "@casa-marga/shared/booking";
 import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
 
-export async function submitBookingRequest(formData: FormData) {
+export type BookingActionState = { status: "idle" | "success" | "error"; message?: string };
+
+async function saveBookingRequest(formData: FormData) {
   const parsed = bookingEnquirySchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success || parsed.data.website) redirect("/book?error=invalid");
+  if (!parsed.success || parsed.data.website) return { ok: false as const, message: "Please check every required field and try again." };
   const supabase = createPublicSupabaseClient();
-  if (!supabase) redirect("/book?error=unavailable");
+  if (!supabase) return { ok: false as const, message: "Online requests are temporarily unavailable. Please contact SnowAZ directly." };
 
   try {
     const { error } = await supabase.from("booking_requests").insert({
@@ -22,12 +24,12 @@ export async function submitBookingRequest(formData: FormData) {
       guest_count: parsed.data.guests,
       special_requests: parsed.data.specialRequests || null,
       source: "snowaz_guest_web",
-      consent_version: "booking-request-v1",
+      consent_version: "booking-request-v2",
     });
     if (error && error.code !== "23505") throw error;
   } catch (error) {
     console.error("[booking-request] database insert failed", { error: error instanceof Error ? error.name : "unknown" });
-    redirect("/book?error=unavailable");
+    return { ok: false as const, message: "We couldn’t save your request. Please try again or contact SnowAZ directly." };
   }
 
   const notificationEmail = process.env.BOOKING_NOTIFICATION_EMAIL;
@@ -41,5 +43,17 @@ export async function submitBookingRequest(formData: FormData) {
       if (!notificationResponse.ok) console.warn("[booking-request] FormSubmit rejected the notification", { status: notificationResponse.status });
     } catch { console.warn("[booking-request] email notification failed; request remains saved in admin"); }
   }
+
+  return { ok: true as const, data: parsed.data };
+}
+
+export async function submitBookingRequestInline(_previous: BookingActionState, formData: FormData): Promise<BookingActionState> {
+  const result = await saveBookingRequest(formData);
+  return result.ok ? { status: "success" } : { status: "error", message: result.message };
+}
+
+export async function submitBookingRequest(formData: FormData) {
+  const result = await saveBookingRequest(formData);
+  if (!result.ok) redirect("/book?error=unavailable");
   redirect("/book?submitted=1");
 }

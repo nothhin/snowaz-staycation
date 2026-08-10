@@ -1,9 +1,10 @@
 import Image from "next/image";
 import AvailabilityCalendar from "./AvailabilityCalendar";
+import ScrollReveal from "./ScrollReveal";
 import { amenityHighlights, buildingAmenities, galleryImages, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
 
 export default function Home() {
-  return <main>
+  return <main><ScrollReveal />
     <section className="snow-hero" id="home">
       <Image src="/images/snowaz/hero.jpg" alt="SnowAZ Staycation's cozy living and dining area" fill preload sizes="100vw" className="snow-hero-image" />
       <div className="snow-hero-overlay" />
@@ -20,21 +21,21 @@ export default function Home() {
       </div>
     </section>
 
-    <section className="snow-highlights" aria-label="Stay highlights">{amenityHighlights.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</section>
+    <section className="snow-highlights" aria-label="Stay highlights" data-reveal>{amenityHighlights.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</section>
 
-    <section className="snow-section snow-intro" id="about">
+    <section className="snow-section snow-intro" id="about" data-reveal>
       <div><p className="eyebrow">Welcome to SnowAZ</p><h2>Feel at home in the heart of the city.</h2></div>
       <p>This minimalist two-bedroom condo is close to Oakridge Business Park, Cebu I.T. Park, schools, hospitals, and malls. Its living and dining area, coffee-bar corner, and comfortable sleeping spaces can accommodate 5–8 guests.</p>
     </section>
 
-    <section className="snow-section" id="gallery">
+    <section className="snow-section" id="gallery" data-reveal>
       <div className="snow-heading"><p className="eyebrow">A look inside</p><h2>Cozy stay. Warm heart.<br />Happy memories.</h2></div>
       <div className="snow-gallery">{galleryImages.map((image, index) => <figure key={image.src} className={index === 0 ? "snow-gallery-feature" : ""}><Image src={image.src} alt={image.alt} fill sizes={index === 0 ? "(max-width: 800px) 100vw, 58vw" : "(max-width: 800px) 100vw, 30vw"} /></figure>)}</div>
     </section>
 
-    <section className="snow-section stay-grid">{stayHighlights.map((item, index) => <article key={item.title}><span>0{index + 1}</span><h3>{item.title}</h3><p>{item.copy}</p></article>)}</section>
+    <section className="snow-section stay-grid" data-reveal>{stayHighlights.map((item, index) => <article key={item.title}><span>0{index + 1}</span><h3>{item.title}</h3><p>{item.copy}</p></article>)}</section>
 
-    <section className="details-section" id="amenities">
+    <section className="details-section" id="amenities" data-reveal>
       <div className="details-heading"><p className="eyebrow">Inside your stay</p><h2>Fully furnished for a comfortable Cebu stay.</h2><p>Available for daily or weekly rental. Check-in is at 2:00 PM and check-out is at 11:00 AM; flexible timing may be arranged depending on availability.</p></div>
       <div className="details-columns">
         <article><h3>Unit amenities</h3><ul>{unitAmenities.map((item) => <li key={item}>{item}</li>)}</ul></article>
@@ -47,17 +48,17 @@ export default function Home() {
       </div>
     </section>
 
-    <section className="availability-section" id="availability">
+    <section className="availability-section" id="availability" data-reveal>
       <div className="availability-copy"><p className="eyebrow">Plan your visit</p><h2>Find your perfect date.</h2><p>Choose any open date to start your booking request. Pending dates may become available again; confirmed stays remain securely blocked without revealing guest information.</p><div className="contact-card"><strong>Prefer personal assistance?</strong><a href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp {propertyProfile.phoneDisplay}</a></div></div>
       <AvailabilityCalendar />
     </section>
 
-    <section className="location-panel" id="location">
+    <section className="location-panel" id="location" data-reveal>
       <div><p className="eyebrow">In the heart of the city</p><h2>Urban convenience,<br />cozy comfort.</h2><address>{propertyProfile.address}</address><ul className="nearby-list">{nearbyPlaces.map((place) => <li key={place}>{place}</li>)}</ul><a className="text-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(propertyProfile.address)}`} target="_blank" rel="noreferrer">Open in Google Maps →</a></div>
       <div className="location-image"><Image src="/images/snowaz/dining-wide.jpg" alt="Elegant SnowAZ Staycation dining area" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
     </section>
 
-    <section className="snow-contact" id="contact"><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={180} height={180} /><div><p className="eyebrow">Ready when you are</p><h2>Let’s plan your stay.</h2><p>For final rates, bedroom access, parking arrangements, flexible arrival times, and immediate availability confirmation, connect directly with SnowAZ Staycation.</p><div className="contact-links"><a href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a><a href={`tel:${propertyProfile.phoneHref}`}>{propertyProfile.phoneDisplay}</a><a href={`mailto:${propertyProfile.email}`}>{propertyProfile.email}</a><a href={propertyProfile.facebookUrl} target="_blank" rel="noreferrer">Facebook page</a></div></div></section>
+    <section className="snow-contact" id="contact" data-reveal><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={180} height={180} /><div><p className="eyebrow">Ready when you are</p><h2>Let’s plan your stay.</h2><p>For final rates, bedroom access, parking arrangements, flexible arrival times, and immediate availability confirmation, connect directly with SnowAZ Staycation.</p><div className="contact-links"><a href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a><a href={`tel:${propertyProfile.phoneHref}`}>{propertyProfile.phoneDisplay}</a><a href={`mailto:${propertyProfile.email}`}>{propertyProfile.email}</a><a href={propertyProfile.facebookUrl} target="_blank" rel="noreferrer">Facebook page</a></div></div></section>
 
     <footer className="snow-footer"><a className="snow-brand" href="#home"><span><strong>SnowAZ Staycation</strong><small>{propertyProfile.tagline}</small></span></a><p>{propertyProfile.address}</p><p>© {new Date().getFullYear()} SnowAZ Staycation</p></footer>
   </main>;

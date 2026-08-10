@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import BookingModal from "./BookingModal";
 
 type Range = { checkIn: string; checkOut: string; status: "pending" | "booked" };
 type ScheduleResponse = { data?: { ranges: Range[] }; error?: { message: string } };
@@ -11,12 +11,12 @@ const iso = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1)
 const addDays = (date: Date, days: number) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 
 export default function AvailabilityCalendar() {
-  const router = useRouter();
   const today = useMemo(() => new Date(), []);
   const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const [ranges, setRanges] = useState<Range[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedStay, setSelectedStay] = useState<{ checkIn: string; checkOut: string } | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -46,10 +46,10 @@ export default function AvailabilityCalendar() {
     const matches = ranges.filter((range) => range.checkIn <= dateIso && range.checkOut > dateIso);
     return matches.some((range) => range.status === "booked") ? "booked" : matches.some((range) => range.status === "pending") ? "pending" : "open";
   };
-  const chooseDate = (date: Date) => router.push(`/book?checkIn=${iso(date)}&checkOut=${iso(addDays(date, 1))}&guests=2`);
+  const chooseDate = (date: Date) => setSelectedStay({ checkIn: iso(date), checkOut: iso(addDays(date, 1)) });
   const currentMonth = month.getFullYear() === today.getFullYear() && month.getMonth() === today.getMonth();
 
-  return <div className="calendar-card">
+  return <><div className="calendar-card">
     <div className="calendar-toolbar">
       <div><p className="eyebrow">Live availability</p><h3>{month.toLocaleDateString("en-PH", { month: "long", year: "numeric" })}</h3></div>
       <div className="calendar-controls">
@@ -69,5 +69,5 @@ export default function AvailabilityCalendar() {
       })}
     </div>
     <div className="calendar-legend"><span data-status="open">Open · select to book</span><span data-status="pending">Pending</span><span data-status="booked">Booked</span></div>
-  </div>;
+  </div>{selectedStay ? <BookingModal {...selectedStay} onClose={() => setSelectedStay(null)} /> : null}</>;
 }

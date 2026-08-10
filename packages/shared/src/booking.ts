@@ -48,7 +48,7 @@ export const reservationRequestSchema = staySchema.extend({
 
 export const bookingEnquirySchema = staySchema.extend({
   roomTypeId: z.string().uuid().optional().or(z.literal("")),
-  guests: z.coerce.number().int().min(1).max(20),
+  guests: z.coerce.number().int().min(1).max(8),
   fullName: z.string().trim().min(2).max(120),
   email: z.string().trim().toLowerCase().email().max(254),
   phone: z.string().trim().min(7).max(30),
