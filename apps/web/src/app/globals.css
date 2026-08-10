@@ -278,4 +278,11 @@ h1,h2,h3 { font-family:var(--font-display),Georgia,serif; font-weight:500; }
 .guest-menu-drawer>footer { display:flex; flex-wrap:wrap; gap:12px 18px; margin-top:auto; padding-top:22px; color:var(--gold-dark); font-size:10px; font-weight:700; }
 @keyframes guest-menu-fade { from { opacity:0; } }
 @keyframes guest-menu-slide { from { transform:translateX(100%); } }
+.browser-view-prompt { position:fixed; z-index:140; right:16px; bottom:16px; width:min(430px,calc(100vw - 32px)); padding:16px; display:grid; gap:13px; border:1px solid var(--line); border-radius:18px; background:#fffaf3; color:var(--ink); box-shadow:0 20px 65px rgba(38,29,23,.25); }
+.browser-view-prompt strong,.browser-view-prompt span { display:block; }
+.browser-view-prompt strong { font-family:var(--font-display),serif; font-size:23px; }
+.browser-view-prompt span { margin-top:3px; color:var(--muted); font-size:10px; line-height:1.5; }
+.browser-view-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.browser-view-actions button { min-height:38px; padding:0 14px; border:1px solid var(--gold); border-radius:999px; background:var(--gold); color:#fff; font:inherit; font-size:9px; font-weight:800; cursor:pointer; }
+.browser-view-actions button:last-child { background:transparent; color:var(--ink); }
 @media (min-width:851px) { .guest-menu-toggle { top:20px; right:24px; } .snow-nav { padding-right:68px; } }

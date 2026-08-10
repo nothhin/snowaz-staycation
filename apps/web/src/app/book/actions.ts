@@ -39,7 +39,7 @@ async function saveBookingRequest(formData: FormData) {
         const notificationResponse = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(notificationEmail)}`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ _subject: `New SnowAZ booking request - ${result.bookingReference}`, name: parsed.data.fullName, email: parsed.data.email || "Not provided", phone: parsed.data.phone, preferred_contact: parsed.data.preferredContact, check_in: parsed.data.checkIn, check_out: parsed.data.checkOut, guests: parsed.data.guests, special_requests: parsed.data.specialRequests || "None" }),
+          body: JSON.stringify({ _subject: `New SnowAZ booking request - ${result.bookingReference}`, name: parsed.data.fullName, email: parsed.data.email || "Not provided", phone: parsed.data.phone, contact_method: "Phone call", check_in: parsed.data.checkIn, check_out: parsed.data.checkOut, guests: parsed.data.guests, special_requests: parsed.data.specialRequests || "None" }),
         });
         if (!notificationResponse.ok) console.warn("[booking-request] FormSubmit rejected the notification", { status: notificationResponse.status });
       } catch { console.warn("[booking-request] email notification failed; request remains saved in admin"); }

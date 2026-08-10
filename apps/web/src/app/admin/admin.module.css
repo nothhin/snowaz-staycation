@@ -68,6 +68,7 @@
 .bookingDetails dl div { margin-bottom:6px; }
 .bookingDetails dt { color:#7c878b; text-transform:uppercase; font-size:7px; font-weight:800; }
 .bookingDetails dd { margin:2px 0 0; overflow-wrap:anywhere; }
+.callGuestButton { width:max-content; min-height:34px; margin-top:8px; padding:0 13px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:#b88850; color:#fff; font-size:9px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
 .depositColumn { display:grid; justify-items:end; gap:7px; }
 .depositBadge { padding:6px 8px; background:#f5f1eb; color:#536269; font-size:8px; font-weight:800; text-transform:uppercase; white-space:nowrap; }
 .depositBadge[data-status="submitted"] { background:#fff4df; color:#9a651e; }
