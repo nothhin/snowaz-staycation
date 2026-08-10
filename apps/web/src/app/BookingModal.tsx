@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef } from "react";
+import Link from "next/link";
 import { submitBookingRequestInline, type BookingActionState } from "./book/actions";
 import { propertyProfile } from "@/lib/property";
 
@@ -50,7 +51,7 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
           <div className="booking-modal-grid"><label><span>Email address</span><input name="email" type="email" autoComplete="email" required /></label><label><span>Contact number</span><input name="phone" type="tel" autoComplete="tel" placeholder="09xx xxx xxxx" required /></label></div>
           <label><span>Special requests (optional)</span><textarea name="specialRequests" rows={3} maxLength={1000} placeholder="Arrival time, parking request, celebration, or anything SnowAZ should know" /></label>
           <div className="booking-policy-summary"><strong>Before you send</strong><ul><li>₱1,000 refundable security deposit is collected offline before check-in.</li><li>No smoking inside the unit; a ₱5,000 penalty applies.</li><li>This request does not create a confirmed reservation.</li></ul></div>
-          <label className="booking-modal-consent"><input name="consent" type="checkbox" required /><span>I agree that SnowAZ may use my contact and stay details to respond to this request. I have read the booking notes above.</span></label>
+          <label className="booking-modal-consent"><input name="consent" type="checkbox" required /><span>I agree that SnowAZ may use my contact and stay details to respond to this request. I have read the <Link href="/privacy">Privacy Notice</Link>, <Link href="/cookies">Cookie Notice</Link>, and booking notes above.</span></label>
           <button className="booking-modal-submit" type="submit" disabled={pending}>{pending ? "Sending request…" : "Send booking request"}</button>
         </form>
       </>}

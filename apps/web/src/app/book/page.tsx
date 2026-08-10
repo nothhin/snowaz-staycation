@@ -25,7 +25,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
         <label><span>Email address</span><input name="email" type="email" autoComplete="email" required /></label>
         <label><span>Contact number</span><input name="phone" type="tel" autoComplete="tel" placeholder="09xx xxx xxxx" required /></label>
         <label><span>Special requests (optional)</span><textarea name="specialRequests" rows={4} maxLength={1000} placeholder="Arrival time, celebration, or anything SnowAZ should know" /></label>
-        <label className={styles.consent}><input name="consent" type="checkbox" required /><span>I agree that SnowAZ may use my contact and stay details to respond to this request. This does not confirm a reservation, and payment instructions are handled offline.</span></label>
+        <label className={styles.consent}><input name="consent" type="checkbox" required /><span>I agree that SnowAZ may use my contact and stay details to respond to this request. I have read the <Link href="/privacy">Privacy Notice</Link> and <Link href="/cookies">Cookie Notice</Link>. This does not confirm a reservation, and payment instructions are handled offline.</span></label>
         <button type="submit">Send booking request</button><small>No payment is collected on this website. SnowAZ will send confirmed instructions directly.</small>
       </form>
     </div>

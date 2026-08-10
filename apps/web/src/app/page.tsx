@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import AvailabilityCalendar from "./AvailabilityCalendar";
 import ScrollReveal from "./ScrollReveal";
 import { amenityHighlights, buildingAmenities, galleryImages, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
@@ -60,6 +61,6 @@ export default function Home() {
 
     <section className="snow-contact" id="contact" data-reveal><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={180} height={180} /><div><p className="eyebrow">Ready when you are</p><h2>Let’s plan your stay.</h2><p>For final rates, bedroom access, parking arrangements, flexible arrival times, and immediate availability confirmation, connect directly with SnowAZ Staycation.</p><div className="contact-links"><a href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a><a href={`tel:${propertyProfile.phoneHref}`}>{propertyProfile.phoneDisplay}</a><a href={`mailto:${propertyProfile.email}`}>{propertyProfile.email}</a><a href={propertyProfile.facebookUrl} target="_blank" rel="noreferrer">Facebook page</a></div></div></section>
 
-    <footer className="snow-footer"><a className="snow-brand" href="#home"><span><strong>SnowAZ Staycation</strong><small>{propertyProfile.tagline}</small></span></a><p>{propertyProfile.address}</p><p>© {new Date().getFullYear()} SnowAZ Staycation</p></footer>
+    <footer className="snow-footer"><a className="snow-brand" href="#home"><span><strong>SnowAZ Staycation</strong><small>{propertyProfile.tagline}</small></span></a><p>{propertyProfile.address}</p><div className="snow-footer-meta"><nav aria-label="Legal"><Link href="/privacy">Privacy Notice</Link><Link href="/cookies">Cookie Notice</Link></nav><p>© {new Date().getFullYear()} SnowAZ Staycation</p></div></footer>
   </main>;
 }
