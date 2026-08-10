@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
-import { bookingRequests, createDatabase, guests, reservations, rooms, roomTypes } from "@casa-marga/db";
 import { propertyProfile } from "@/lib/property";
 import { requireStaff } from "@/lib/server/admin-auth";
-import { parseDatabaseEnvironment } from "@/lib/server/env";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { addPhysicalRoom, signOut, updateRoomStatus, updateRoomType } from "./actions";
 import { AdminMobileNav, AdminNav } from "./AdminNav";
 import { DepositControls } from "./DepositControls";
@@ -13,6 +11,13 @@ import styles from "./admin.module.css";
 
 export const metadata: Metadata = { title: "Property admin | SnowAZ Staycation", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
+
+type DashboardData = {
+  templates: Array<{ id:string; name:string; slug:string; maxAdults:number; maxChildren:number; baseNightlyRateMinor:number; displayOrder:number; status:"draft"|"published"|"archived" }>;
+  inventory: Array<{ id:string; roomNumber:string; floor:string|null; status:"available"|"maintenance"|"out_of_service"; roomTypeName:string }>;
+  upcoming: Array<{ id:string; checkIn:string; checkOut:string; status:"confirmed"|"checked_in"; guestCount:number; totalMinor:number; currency:string; guestName:string; roomNumber:string; roomTypeName:string }>;
+  enquiries: Array<{ id:string; fullName:string; email:string; phone:string; checkIn:string; checkOut:string; guestCount:number; status:string; depositStatus:string; depositSenderName:string|null; depositReference:string|null; depositSubmittedAt:string|null; depositRefundReference:string|null; roomTypeName:string|null }>;
+};
 
 const roomImages: Record<string, string> = {
   "deluxe-queen-room": "/images/snowaz/dining.jpg",
@@ -26,25 +31,15 @@ const php = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP",
 export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ saved?: string; error?: string }> }) {
   const staff = await requireStaff();
   const params = await searchParams;
-  const configuration = parseDatabaseEnvironment();
-  if (!configuration.success) throw new Error("Database configuration is unavailable.");
-  const database = createDatabase(configuration.data.DATABASE_URL);
+  const supabase = await createSupabaseServerClient();
   const now = new Date();
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: propertyProfile.timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
 
-  try {
-    // The serverless database client intentionally has max: 1. Run these reads
-    // sequentially so concurrent Drizzle promises cannot compete for that one
-    // Supabase transaction-pool connection and exhaust Netlify's timeout.
-    const templates = await database.db.select().from(roomTypes).orderBy(asc(roomTypes.displayOrder));
-    const inventory = await database.db.select({ id: rooms.id, roomNumber: rooms.roomNumber, floor: rooms.floor, status: rooms.status, roomTypeName: roomTypes.name })
-      .from(rooms).innerJoin(roomTypes, eq(rooms.roomTypeId, roomTypes.id)).orderBy(asc(rooms.roomNumber));
-    const upcoming = await database.db.select({ id: reservations.id, checkIn: reservations.checkIn, checkOut: reservations.checkOut, status: reservations.status, guestCount: reservations.guestCount, totalMinor: reservations.totalMinor, currency: reservations.currency, guestName: guests.fullName, roomNumber: rooms.roomNumber, roomTypeName: roomTypes.name })
-      .from(reservations).innerJoin(guests, eq(reservations.guestId, guests.id)).innerJoin(rooms, eq(reservations.roomId, rooms.id)).innerJoin(roomTypes, eq(rooms.roomTypeId, roomTypes.id))
-      .where(and(inArray(reservations.status, ["confirmed", "checked_in"]), gte(reservations.checkOut, today))).orderBy(asc(reservations.checkIn)).limit(25);
-    const enquiries = await database.db.select({ id: bookingRequests.id, fullName: bookingRequests.fullName, email: bookingRequests.normalizedEmail, phone: bookingRequests.phone, checkIn: bookingRequests.checkIn, checkOut: bookingRequests.checkOut, guestCount: bookingRequests.guestCount, status: bookingRequests.status, depositStatus: bookingRequests.depositStatus, depositSenderName: bookingRequests.depositSenderName, depositReference: bookingRequests.depositReference, depositSubmittedAt: bookingRequests.depositSubmittedAt, depositRefundReference: bookingRequests.depositRefundReference, roomTypeName: roomTypes.name })
-      .from(bookingRequests).leftJoin(roomTypes, eq(bookingRequests.roomTypeId, roomTypes.id)).orderBy(desc(bookingRequests.createdAt)).limit(30);
-    const summary = await database.db.select({ totalRooms: sql<number>`count(*)::int`, availableRooms: sql<number>`count(*) filter (where ${rooms.status} = 'available')::int` }).from(rooms);
+  const { data, error } = await supabase.rpc("get_snowaz_admin_dashboard");
+  if (error || !data) throw new Error("Admin data is unavailable.");
+  const dashboard = data as DashboardData;
+  const { templates, inventory, upcoming, enquiries } = dashboard;
+  const summary = [{ totalRooms: inventory.length, availableRooms: inventory.filter((room) => room.status === "available").length }];
     console.info("[admin-dashboard] operational data loaded", { templates: templates.length, rooms: inventory.length, reservations: upcoming.length });
 
     const arrivals = upcoming.filter((item) => item.checkIn === today).length;
@@ -80,7 +75,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
 
           <section className={styles.panel} aria-labelledby="booking-requests-title">
             <div className={styles.panelHeading}><div><p className={styles.eyebrow}>Guest website</p><h2 id="booking-requests-title">Booking requests</h2></div><span className={styles.countBadge}>{enquiries.filter((item) => item.status === "pending").length} pending</span></div>
-            {enquiries.length ? <div className={`${styles.reservationList} ${styles.bookingRequestList}`}>{enquiries.map((item) => <article key={item.id}><div><strong>{item.fullName}</strong><small><a href={`tel:${item.phone}`}>{item.phone}</a> · <a href={`mailto:${item.email}`}>{item.email}</a></small></div><div><span>{item.checkIn} → {item.checkOut}</span><small>{item.guestCount} guest{item.guestCount === 1 ? "" : "s"} · {item.roomTypeName ?? "Best available room"}</small>{item.depositReference ? <small>Transfer: {item.depositReference} · {item.depositSenderName}{item.depositSubmittedAt ? ` · ${item.depositSubmittedAt.toLocaleString("en-PH")}` : ""}</small> : null}{item.depositRefundReference ? <small>Refund: {item.depositRefundReference}</small> : null}</div><div className={styles.depositColumn}><b data-status={item.status}>{item.status}</b><span className={styles.depositBadge} data-status={item.depositStatus}>{item.depositStatus.replaceAll("_", " ")}</span><DepositControls bookingId={item.id} depositStatus={item.depositStatus} canManage={canManage} /></div></article>)}</div> : <div className={styles.emptyState}><span aria-hidden="true">⌁</span><h3>No booking requests yet</h3><p>Guest enquiries submitted from the booking form will appear here.</p></div>}
+            {enquiries.length ? <div className={`${styles.reservationList} ${styles.bookingRequestList}`}>{enquiries.map((item) => <article key={item.id}><div><strong>{item.fullName}</strong><small><a href={`tel:${item.phone}`}>{item.phone}</a> · <a href={`mailto:${item.email}`}>{item.email}</a></small></div><div><span>{item.checkIn} → {item.checkOut}</span><small>{item.guestCount} guest{item.guestCount === 1 ? "" : "s"} · {item.roomTypeName ?? "Best available room"}</small>{item.depositReference ? <small>Transfer: {item.depositReference} · {item.depositSenderName}{item.depositSubmittedAt ? ` · ${new Date(item.depositSubmittedAt).toLocaleString("en-PH")}` : ""}</small> : null}{item.depositRefundReference ? <small>Refund: {item.depositRefundReference}</small> : null}</div><div className={styles.depositColumn}><b data-status={item.status}>{item.status}</b><span className={styles.depositBadge} data-status={item.depositStatus}>{item.depositStatus.replaceAll("_", " ")}</span><DepositControls bookingId={item.id} depositStatus={item.depositStatus} canManage={canManage} /></div></article>)}</div> : <div className={styles.emptyState}><span aria-hidden="true">⌁</span><h3>No booking requests yet</h3><p>Guest enquiries submitted from the booking form will appear here.</p></div>}
           </section>
 
           <div className={styles.twoColumn}>
@@ -125,5 +120,4 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
         </div>
       </section>
     </main>;
-  } finally { await database.close(); }
 }

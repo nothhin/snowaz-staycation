@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { eq } from "drizzle-orm";
-import { bookingRequests, createDatabase } from "@casa-marga/db";
 import { hashDepositToken, isValidDepositToken } from "@/lib/server/deposit-token";
-import { parseDatabaseEnvironment } from "@/lib/server/env";
+import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
 import qrImage from "@/assets/maribank-deposit-qr.png";
 import { submitDepositReference } from "./actions";
 import styles from "./deposit.module.css";
@@ -17,13 +15,12 @@ export default async function DepositPage({ params, searchParams }: { params: Pr
   const { token } = await params;
   const query = await searchParams;
   if (!isValidDepositToken(token)) return <InvalidDepositLink />;
-  const configuration = parseDatabaseEnvironment();
-  if (!configuration.success) throw new Error("Database configuration is unavailable.");
-  const database = createDatabase(configuration.data.DATABASE_URL);
-  let request;
-  try {
-    [request] = await database.db.select({ fullName: bookingRequests.fullName, checkIn: bookingRequests.checkIn, checkOut: bookingRequests.checkOut, guestCount: bookingRequests.guestCount, depositStatus: bookingRequests.depositStatus, depositAmountMinor: bookingRequests.depositAmountMinor, depositTokenExpiresAt: bookingRequests.depositTokenExpiresAt }).from(bookingRequests).where(eq(bookingRequests.depositTokenHash, hashDepositToken(token))).limit(1);
-  } finally { await database.close(); }
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) throw new Error("Deposit service is unavailable.");
+  const { data, error } = await supabase.rpc("get_snowaz_deposit_request", { token_hash: hashDepositToken(token) });
+  if (error) throw new Error("Deposit service is unavailable.");
+  const row = Array.isArray(data) ? data[0] : null;
+  const request = row ? { fullName: row.full_name as string, checkIn: row.check_in as string, checkOut: row.check_out as string, guestCount: row.guest_count as number, depositStatus: row.deposit_status as string, depositAmountMinor: Number(row.deposit_amount_minor), depositTokenExpiresAt: row.deposit_token_expires_at ? new Date(row.deposit_token_expires_at as string) : null } : null;
   if (!request || !request.depositTokenExpiresAt || request.depositTokenExpiresAt <= new Date() && request.depositStatus === "awaiting_payment") return <InvalidDepositLink />;
   const finished = ["submitted", "verified", "refund_pending", "refunded", "partially_withheld", "forfeited"].includes(request.depositStatus);
   return <main className={styles.shell}><header><Link href="/">SnowAZ Staycation</Link><span>Private deposit instructions</span></header><article className={styles.card}>

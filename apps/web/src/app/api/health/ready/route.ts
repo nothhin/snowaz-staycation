@@ -1,5 +1,4 @@
-import { checkDatabaseConnection } from "@casa-marga/db";
-import { parseServerEnvironment } from "@/lib/server/env";
+import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -7,9 +6,8 @@ export const runtime = "nodejs";
 const noStoreHeaders = { "Cache-Control": "no-store" };
 
 export async function GET() {
-  const configuration = parseServerEnvironment();
-
-  if (!configuration.success) {
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) {
     return Response.json(
       {
         status: "not_ready",
@@ -21,7 +19,8 @@ export async function GET() {
   }
 
   try {
-    await checkDatabaseConnection(configuration.data.DATABASE_URL);
+    const { error } = await supabase.from("snowaz_calendar_ranges").select("source_id", { head: true, count: "exact" });
+    if (error) throw error;
     return Response.json(
       { status: "ready", checks: { application: "ok", configuration: "ok", database: "ok" } },
       { headers: noStoreHeaders },
