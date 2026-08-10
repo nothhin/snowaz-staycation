@@ -28,7 +28,7 @@ export function DepositControls({ bookingId, bookingStatus = "pending", depositS
     event.preventDefault();
     const confirmed = await confirmAction(
       kind === "decline" ? "Decline this request?" : "Cancel this booking?",
-      kind === "decline" ? "The dates will reopen for other guests." : "The dates will reopen. A verified deposit will move to refund pending.",
+      kind === "decline" ? "The dates will reopen for other guests." : "The confirmed stay will be cancelled and its dates will reopen. If a real deposit was received, it will move to refund pending.",
       kind === "decline" ? "Decline request" : "Cancel booking",
     );
     if (confirmed) { form.dataset.confirmed = "true"; form.requestSubmit(); }
@@ -52,6 +52,6 @@ export function DepositControls({ bookingId, bookingStatus = "pending", depositS
     {active && depositStatus === "submitted" ? <form action={verifyAction} onSubmit={(event) => { void confirmPayment(event); }}><input type="hidden" name="bookingId" value={bookingId} /><button disabled={verifyPending}>{verifyPending ? "Verifying…" : "Verify in MariBank & confirm"}</button></form> : null}
     {depositStatus === "verified" || depositStatus === "refund_pending" ? <form action={refundAction}><input type="hidden" name="bookingId" value={bookingId} /><input name="refundReference" placeholder="Refund reference" required minLength={6} maxLength={80} /><button disabled={refundPending}>{refundPending ? "Saving…" : "Mark refunded"}</button></form> : null}
     {bookingStatus === "pending" || bookingStatus === "contacted" ? <form action={statusAction} onSubmit={(event) => { void confirmStatusChange(event, "decline"); }}><input type="hidden" name="bookingId" value={bookingId} /><input type="hidden" name="status" value="declined" /><button className="deposit-danger" disabled={statusPending}>Decline request</button></form> : null}
-    {bookingStatus === "confirmed" ? <form action={statusAction} onSubmit={(event) => { void confirmStatusChange(event, "cancel"); }}><input type="hidden" name="bookingId" value={bookingId} /><input type="hidden" name="status" value="cancelled" /><button className="deposit-danger" disabled={statusPending}>Cancel booking</button></form> : null}
+    {bookingStatus === "confirmed" ? <form action={statusAction} onSubmit={(event) => { void confirmStatusChange(event, "cancel"); }}><input type="hidden" name="bookingId" value={bookingId} /><input type="hidden" name="status" value="cancelled" /><button className="deposit-danger" disabled={statusPending}>{statusPending ? "Cancelling…" : "Cancel confirmed stay"}</button><small>Use this if the payment is false, invalid, or the confirmed stay must be cancelled.</small></form> : null}
   </div>;
 }
