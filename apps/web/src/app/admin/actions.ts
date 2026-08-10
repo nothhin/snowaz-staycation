@@ -129,3 +129,14 @@ export async function markDepositRefunded(_state: DepositActionState, formData: 
   revalidatePath("/admin");
   return { status: "success", message: "Refund recorded." };
 }
+
+export async function updateBookingRequestStatus(_state: DepositActionState, formData: FormData): Promise<DepositActionState> {
+  await requireStaff(["manager", "admin"]);
+  const parsed = z.object({ bookingId: z.string().uuid(), status: z.enum(["declined", "cancelled"]) }).safeParse({ bookingId: formData.get("bookingId"), status: formData.get("status") });
+  if (!parsed.success) return { status: "error", message: "Invalid booking status change." };
+  const supabase = await createSupabaseServerClient();
+  const { data: updated, error } = await supabase.rpc("staff_update_snowaz_booking_status", { target_id: parsed.data.bookingId, next_status: parsed.data.status });
+  if (error || !updated) return { status: "error", message: "This booking can no longer be changed to that status." };
+  revalidatePath("/admin"); revalidatePath("/");
+  return { status: "success", message: parsed.data.status === "declined" ? "Booking request declined." : "Booking cancelled. Any verified deposit is now awaiting refund." };
+}

@@ -6,7 +6,8 @@ import { requireStaff } from "@/lib/server/admin-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { addPhysicalRoom, signOut, updateRoomStatus, updateRoomType } from "./actions";
 import { AdminMobileNav, AdminNav } from "./AdminNav";
-import { DepositControls } from "./DepositControls";
+import { AdminLiveRefresh } from "./AdminLiveRefresh";
+import { BookingRequestsPanel, type AdminEnquiry } from "./BookingRequestsPanel";
 import styles from "./admin.module.css";
 
 export const metadata: Metadata = { title: "Property admin | SnowAZ Staycation", robots: { index: false, follow: false } };
@@ -16,7 +17,7 @@ type DashboardData = {
   templates: Array<{ id:string; name:string; slug:string; maxAdults:number; maxChildren:number; baseNightlyRateMinor:number; displayOrder:number; status:"draft"|"published"|"archived" }>;
   inventory: Array<{ id:string; roomNumber:string; floor:string|null; status:"available"|"maintenance"|"out_of_service"; roomTypeName:string }>;
   upcoming: Array<{ id:string; checkIn:string; checkOut:string; status:"confirmed"|"checked_in"; guestCount:number; totalMinor:number; currency:string; guestName:string; roomNumber:string; roomTypeName:string }>;
-  enquiries: Array<{ id:string; fullName:string; email:string; phone:string; preferredContact:string; checkIn:string; checkOut:string; guestCount:number; status:string; depositStatus:string; depositSenderName:string|null; depositReference:string|null; depositSubmittedAt:string|null; depositRefundReference:string|null; roomTypeName:string|null }>;
+  enquiries: AdminEnquiry[];
 };
 
 const roomImages: Record<string, string> = {
@@ -54,7 +55,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
       <aside className={styles.sidebar}>
         <Link className={styles.adminBrand} href="/"><span>AZ</span><div><strong>SnowAZ</strong><small>Property admin</small></div></Link>
         <AdminNav activeClassName={styles.activeNav} />
-        <div className={styles.sidebarFooter}><span className={styles.statusDot} /><div><strong>Live operations</strong><small>Supabase connected</small></div></div>
+        <div className={styles.sidebarFooter}><span className={styles.statusDot} /><div><strong>Live operations</strong><AdminLiveRefresh /></div></div>
       </aside>
 
       <section className={styles.workspace}>
@@ -73,10 +74,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
             {[{ label: "Arrivals today", value: arrivals, note: "Confirmed arrivals" }, { label: "Currently staying", value: staying, note: "In-house guests" }, { label: "Available rooms", value: available, note: `${summary[0].totalRooms} physical rooms configured` }, { label: "Occupancy", value: `${occupancy}%`, note: "Based on active inventory" }].map((metric) => <article key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong><small>{metric.note}</small></article>)}
           </section>
 
-          <section className={styles.panel} aria-labelledby="booking-requests-title">
-            <div className={styles.panelHeading}><div><p className={styles.eyebrow}>Guest website</p><h2 id="booking-requests-title">Booking requests</h2></div><span className={styles.countBadge}>{enquiries.filter((item) => item.status === "pending").length} pending</span></div>
-            {enquiries.length ? <div className={`${styles.reservationList} ${styles.bookingRequestList}`}>{enquiries.map((item) => <article key={item.id}><div><strong>{item.fullName}</strong><small><a href={`tel:${item.phone}`}>{item.phone}</a>{item.email ? <> · <a href={`mailto:${item.email}`}>{item.email}</a></> : null}</small><small>Preferred: {item.preferredContact}</small></div><div><span>{item.checkIn} → {item.checkOut}</span><small>{item.guestCount} guest{item.guestCount === 1 ? "" : "s"} · {item.roomTypeName ?? "Best available room"}</small>{item.depositReference ? <small>Transfer: {item.depositReference} · {item.depositSenderName}{item.depositSubmittedAt ? ` · ${new Date(item.depositSubmittedAt).toLocaleString("en-PH")}` : ""}</small> : null}{item.depositRefundReference ? <small>Refund: {item.depositRefundReference}</small> : null}</div><div className={styles.depositColumn}><b data-status={item.status}>{item.status}</b><span className={styles.depositBadge} data-status={item.depositStatus}>{item.depositStatus.replaceAll("_", " ")}</span><DepositControls bookingId={item.id} depositStatus={item.depositStatus} canManage={canManage} /></div></article>)}</div> : <div className={styles.emptyState}><span aria-hidden="true">⌁</span><h3>No booking requests yet</h3><p>Guest enquiries submitted from the booking form will appear here.</p></div>}
-          </section>
+          <BookingRequestsPanel enquiries={enquiries} canManage={canManage} />
 
           <div className={styles.twoColumn}>
             <section id="reservations" className={styles.panel}>

@@ -10,6 +10,8 @@ const depositMigrationPath = fileURLToPath(new URL("./0006_snowaz_manual_deposit
 const depositMigration = readFileSync(depositMigrationPath, "utf8");
 const immediateDepositPath = fileURLToPath(new URL("./0008_immediate_deposit_checkout.sql", import.meta.url));
 const immediateDeposit = readFileSync(immediateDepositPath, "utf8");
+const adminOperationsPath = fileURLToPath(new URL("./0009_admin_booking_operations.sql", import.meta.url));
+const adminOperations = readFileSync(adminOperationsPath, "utf8");
 
 describe("initial database migration", () => {
   it("enforces a single property settings row", () => {
@@ -67,6 +69,18 @@ describe("SnowAZ immediate deposit checkout", () => {
   it("expires unpaid holds after two hours", () => {
     expect(immediateDeposit).toContain("now() + interval '2 hours'");
     expect(immediateDeposit).toContain("expire_snowaz_deposit_holds");
+  });
+});
+
+describe("SnowAZ admin booking operations", () => {
+  it("restricts status changes to managers and admins", () => {
+    expect(adminOperations).toContain("private.snowaz_staff_role() not in ('manager', 'admin')");
+    expect(adminOperations).toContain("revoke all on function public.staff_update_snowaz_booking_status(uuid,text) from public, anon");
+  });
+
+  it("routes verified cancellations into the refund workflow", () => {
+    expect(adminOperations).toContain("then 'refund_pending'::public.deposit_status");
+    expect(adminOperations).toContain("insert into public.audit_log");
   });
 });
 
