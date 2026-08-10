@@ -119,6 +119,17 @@ export async function verifyDeposit(_state: DepositActionState, formData: FormDa
   return { status: "success", message: "Deposit verified and booking confirmed." };
 }
 
+export async function recordAndVerifyDeposit(_state: DepositActionState, formData: FormData): Promise<DepositActionState> {
+  await requireStaff(["manager", "admin"]);
+  const parsed = z.object({ bookingId: z.string().uuid(), senderName: z.string().trim().min(2).max(120), paymentReference: z.string().trim().min(6).max(80) }).safeParse({ bookingId: formData.get("bookingId"), senderName: formData.get("senderName"), paymentReference: formData.get("paymentReference") });
+  if (!parsed.success) return { status: "error", message: "Enter the sender name and transaction reference shown on the receipt." };
+  const supabase = await createSupabaseServerClient();
+  const { data: updated, error } = await supabase.rpc("staff_record_and_verify_snowaz_deposit", { target_id: parsed.data.bookingId, sender_name: parsed.data.senderName, payment_reference: parsed.data.paymentReference });
+  if (error || !updated) return { status: "error", message: "This payment hold expired or the booking can no longer be confirmed. Check the dates before proceeding." };
+  revalidatePath("/admin"); revalidatePath("/");
+  return { status: "success", message: "Messenger payment recorded, verified, and booking confirmed." };
+}
+
 export async function markDepositRefunded(_state: DepositActionState, formData: FormData): Promise<DepositActionState> {
   await requireStaff(["manager", "admin"]);
   const parsed = z.object({ bookingId: z.string().uuid(), refundReference: z.string().trim().min(6).max(80) }).safeParse({ bookingId: formData.get("bookingId"), refundReference: formData.get("refundReference") });

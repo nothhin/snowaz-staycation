@@ -16,6 +16,8 @@ const bookingLookupPath = fileURLToPath(new URL("./0010_public_booking_status_lo
 const bookingLookup = readFileSync(bookingLookupPath, "utf8");
 const privateLinkLifecyclePath = fileURLToPath(new URL("./0011_private_deposit_link_lifecycle.sql", import.meta.url));
 const privateLinkLifecycle = readFileSync(privateLinkLifecyclePath, "utf8");
+const messengerVerificationPath = fileURLToPath(new URL("./0012_admin_messenger_deposit_verification.sql", import.meta.url));
+const messengerVerification = readFileSync(messengerVerificationPath, "utf8");
 
 describe("initial database migration", () => {
   it("enforces a single property settings row", () => {
@@ -111,6 +113,19 @@ describe("SnowAZ private deposit link lifecycle", () => {
   it("keeps refund links for thirty days and supports refund pending", () => {
     expect(privateLinkLifecycle).toContain("deposit_token_expires_at=now()+interval '30 days'");
     expect(privateLinkLifecycle).toContain("deposit_status in ('verified','refund_pending')");
+  });
+});
+
+describe("SnowAZ admin Messenger receipt verification", () => {
+  it("requires manager access and complete bank evidence", () => {
+    expect(messengerVerification).toContain("private.snowaz_staff_role() not in ('manager','admin')");
+    expect(messengerVerification).toContain("char_length(trim(payment_reference)) not between 6 and 80");
+  });
+
+  it("only confirms an active unexpired payment request", () => {
+    expect(messengerVerification).toContain("deposit_status='awaiting_payment'");
+    expect(messengerVerification).toContain("deposit_token_expires_at>now()");
+    expect(messengerVerification).toContain("booking.deposit_recorded_and_verified");
   });
 });
 
