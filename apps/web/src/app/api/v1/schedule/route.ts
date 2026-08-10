@@ -21,6 +21,8 @@ export async function GET(request: Request) {
   }
 
   try {
+    const { error: expiryError } = await supabase.rpc("expire_snowaz_deposit_holds");
+    if (expiryError) throw expiryError;
     const { data, error } = await supabase.from("snowaz_calendar_ranges")
       .select("check_in,check_out,display_status")
       .lt("check_in", to.data).gt("check_out", from.data);

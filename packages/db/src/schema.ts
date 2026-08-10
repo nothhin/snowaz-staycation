@@ -129,6 +129,7 @@ export const bookingRequests = pgTable("booking_requests", {
   fullName: text("full_name").notNull(),
   normalizedEmail: text("normalized_email").notNull(),
   phone: text("phone").notNull(),
+  preferredContact: text("preferred_contact").notNull().default("whatsapp"),
   checkIn: date("check_in").notNull(),
   checkOut: date("check_out").notNull(),
   guestCount: integer("guest_count").notNull(),

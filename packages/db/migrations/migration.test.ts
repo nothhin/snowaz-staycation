@@ -8,6 +8,8 @@ const provisionalSeedPath = fileURLToPath(new URL("./0002_provisional_catalog.sq
 const provisionalSeed = readFileSync(provisionalSeedPath, "utf8");
 const depositMigrationPath = fileURLToPath(new URL("./0006_snowaz_manual_deposit_workflow.sql", import.meta.url));
 const depositMigration = readFileSync(depositMigrationPath, "utf8");
+const immediateDepositPath = fileURLToPath(new URL("./0008_immediate_deposit_checkout.sql", import.meta.url));
+const immediateDeposit = readFileSync(immediateDepositPath, "utf8");
 
 describe("initial database migration", () => {
   it("enforces a single property settings row", () => {
@@ -53,6 +55,18 @@ describe("SnowAZ manual deposit workflow", () => {
   it("keeps verified booking requests blocked on the public calendar", () => {
     expect(depositMigration).toContain("new.status in ('pending', 'contacted', 'confirmed')");
     expect(depositMigration).toContain("new.status = 'confirmed' then 'booked'");
+  });
+});
+
+describe("SnowAZ immediate deposit checkout", () => {
+  it("uses one controlled RPC instead of anonymous table inserts", () => {
+    expect(immediateDeposit).toContain("revoke insert on public.booking_requests from anon, authenticated");
+    expect(immediateDeposit).toContain("submit_snowaz_booking_request");
+  });
+
+  it("expires unpaid holds after two hours", () => {
+    expect(immediateDeposit).toContain("now() + interval '2 hours'");
+    expect(immediateDeposit).toContain("expire_snowaz_deposit_holds");
   });
 });
 

@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef } from "react";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { submitBookingRequestInline, type BookingActionState } from "./book/actions";
 import { propertyProfile } from "@/lib/property";
+import qrImage from "@/assets/maribank-deposit-qr.png";
 
 type BookingModalProps = {
   checkIn: string;
@@ -18,6 +20,7 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const idempotencyKey = useRef(crypto.randomUUID());
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -35,9 +38,12 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
     <div className="booking-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} ref={dialogRef}>
       <button className="booking-modal-close" type="button" aria-label="Close booking form" onClick={onClose}>×</button>
       {state.status === "success" ? <div className="booking-modal-success" role="status">
-        <span aria-hidden="true">✓</span><p className="eyebrow">Request received</p><h2 id={titleId}>Thank you. We’ll be in touch.</h2>
-        <p>Your dates are pending review and are not yet confirmed. SnowAZ will contact you with the final rate, house rules, and offline payment instructions.</p>
-        <a href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">Follow up on WhatsApp</a>
+        <span aria-hidden="true">✓</span><p className="eyebrow">Dates held for two hours</p><h2 id={titleId}>Complete your deposit.</h2>
+        <p>Your booking reference is <strong>{state.bookingReference}</strong>. Pay the refundable ₱1,000 security deposit below, then submit the bank reference for SnowAZ verification. Payment does not confirm the reservation until it is verified in MariBank.</p>
+        <div className="booking-success-qr"><Image src={qrImage} alt="MariBank InstaPay QR for Merry Shien Gepitulan, account ending 5650" sizes="(max-width: 520px) 82vw, 330px" /><strong>Merry Shien Gepitulan</strong><small>MariBank · account ending 5650 · exactly ₱1,000</small></div>
+        <Link className="booking-deposit-link" href={state.depositLink ?? "/"}>I’ve paid — submit bank reference</Link>
+        <div className="booking-contact-actions"><button type="button" onClick={async () => { await navigator.clipboard.writeText(`Hello SnowAZ! My booking reference is ${state.bookingReference}. I am sending my deposit receipt for verification.`); setCopied(true); }}>{copied ? "Message copied" : "Copy receipt message"}</button><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Open Messenger</a><a href={propertyProfile.whatsappUrl} target="_blank" rel="noreferrer">Open WhatsApp</a></div>
+        <small className="booking-deadline">Complete the transfer and submit its reference within two hours or the pending dates may reopen.</small>
         <button type="button" onClick={onClose}>Return to availability</button>
       </div> : <>
         <div className="booking-modal-heading"><p className="eyebrow">Request a reservation</p><h2 id={titleId}>Plan your SnowAZ stay.</h2><p>No payment is collected here. This form sends an availability request only.</p></div>
@@ -48,9 +54,10 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
           <div className="booking-modal-grid"><label><span>Check-in</span><input name="checkIn" type="date" defaultValue={checkIn} required /></label><label><span>Check-out</span><input name="checkOut" type="date" defaultValue={checkOut} required /></label></div>
           <label><span>Number of guests</span><input name="guests" type="number" min="1" max="8" defaultValue="2" required /><small>2 guests include 1 bedroom; book 4 or more guests for access to both bedrooms.</small></label>
           <label><span>Full name</span><input name="fullName" autoComplete="name" required /></label>
-          <div className="booking-modal-grid"><label><span>Email address</span><input name="email" type="email" autoComplete="email" required /></label><label><span>Contact number</span><input name="phone" type="tel" autoComplete="tel" placeholder="09xx xxx xxxx" required /></label></div>
+          <div className="booking-modal-grid"><label><span>Email address (optional)</span><input name="email" type="email" autoComplete="email" /></label><label><span>Contact number</span><input name="phone" type="tel" autoComplete="tel" placeholder="09xx xxx xxxx" required /></label></div>
+          <label><span>Preferred contact</span><select name="preferredContact" defaultValue="whatsapp"><option value="whatsapp">WhatsApp</option><option value="messenger">Facebook Messenger</option><option value="phone">Phone call</option><option value="email">Email (email address required)</option></select></label>
           <label><span>Special requests (optional)</span><textarea name="specialRequests" rows={3} maxLength={1000} placeholder="Arrival time, parking request, celebration, or anything SnowAZ should know" /></label>
-          <div className="booking-policy-summary"><strong>Before you send</strong><ul><li>₱1,000 refundable security deposit is collected offline before check-in.</li><li>No smoking inside the unit; a ₱5,000 penalty applies.</li><li>This request does not create a confirmed reservation.</li></ul></div>
+          <div className="booking-policy-summary"><strong>Before you send</strong><ul><li>Your dates will be held as pending for two hours while you send the refundable ₱1,000 deposit.</li><li>No smoking inside the unit; a ₱5,000 penalty applies.</li><li>Payment remains pending until SnowAZ verifies it in MariBank.</li></ul></div>
           <label className="booking-modal-consent"><input name="consent" type="checkbox" required /><span>I agree that SnowAZ may use my contact and stay details to respond to this request. I have read the <Link href="/privacy">Privacy Notice</Link>, <Link href="/cookies">Cookie Notice</Link>, and booking notes above.</span></label>
           <button className="booking-modal-submit" type="submit" disabled={pending}>{pending ? "Sending request…" : "Send booking request"}</button>
         </form>

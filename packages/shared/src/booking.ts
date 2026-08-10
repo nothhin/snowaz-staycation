@@ -50,13 +50,14 @@ export const bookingEnquirySchema = staySchema.extend({
   roomTypeId: z.string().uuid().optional().or(z.literal("")),
   guests: z.coerce.number().int().min(1).max(8),
   fullName: z.string().trim().min(2).max(120),
-  email: z.string().trim().toLowerCase().email().max(254),
+  email: z.union([z.literal(""), z.string().trim().toLowerCase().email().max(254)]),
   phone: z.string().trim().min(7).max(30),
+  preferredContact: z.enum(["whatsapp", "messenger", "phone", "email"]),
   specialRequests: z.string().trim().max(1_000).optional().or(z.literal("")),
   consent: z.literal("on", { error: "Accept the privacy notice before submitting." }),
   idempotencyKey: z.string().uuid(),
   website: z.string().max(0).optional().or(z.literal("")),
-});
+}).refine(({ preferredContact, email }) => preferredContact !== "email" || Boolean(email), { message: "Enter an email address when email is your preferred contact method.", path: ["email"] });
 
 export function stayNights(checkIn: string, checkOut: string) {
   const parsed = staySchema.parse({ checkIn, checkOut });

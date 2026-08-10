@@ -4,6 +4,7 @@ import {
   calculateStayTotalMinor,
   normalizeGuestEmail,
   reservationRequestSchema,
+  bookingEnquirySchema,
   stayNights,
 } from "./booking";
 
@@ -34,6 +35,12 @@ describe("booking contracts", () => {
     });
     expect(result.success).toBe(false);
   });
+});
+
+describe("booking enquiries", () => {
+  const request = { checkIn:"2026-09-01", checkOut:"2026-09-02", guests:"2", fullName:"Guest Name", email:"", phone:"09951234567", preferredContact:"messenger", specialRequests:"", consent:"on", idempotencyKey:"d87c7965-11f9-4e93-8ff4-fb8a60a21321", website:"" };
+  it("allows optional email for Messenger, WhatsApp, or phone contact", () => expect(bookingEnquirySchema.safeParse(request).success).toBe(true));
+  it("requires email when email is selected", () => expect(bookingEnquirySchema.safeParse({ ...request, preferredContact:"email" }).success).toBe(false));
 });
 
 describe("money calculations", () => {

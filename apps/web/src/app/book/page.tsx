@@ -22,11 +22,12 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
         <div className={styles.grid}><label><span>Check-in</span><input name="checkIn" type="date" defaultValue={params.checkIn} required /></label><label><span>Check-out</span><input name="checkOut" type="date" defaultValue={params.checkOut} required /></label></div>
         <label><span>Number of guests</span><input name="guests" type="number" min="1" max="8" defaultValue={params.guests ?? "2"} required /></label>
         <label><span>Full name</span><input name="fullName" autoComplete="name" required /></label>
-        <label><span>Email address</span><input name="email" type="email" autoComplete="email" required /></label>
+        <label><span>Email address (optional)</span><input name="email" type="email" autoComplete="email" /></label>
         <label><span>Contact number</span><input name="phone" type="tel" autoComplete="tel" placeholder="09xx xxx xxxx" required /></label>
+        <label><span>Preferred contact</span><select name="preferredContact" defaultValue="whatsapp"><option value="whatsapp">WhatsApp</option><option value="messenger">Facebook Messenger</option><option value="phone">Phone call</option><option value="email">Email (email address required)</option></select></label>
         <label><span>Special requests (optional)</span><textarea name="specialRequests" rows={4} maxLength={1000} placeholder="Arrival time, celebration, or anything SnowAZ should know" /></label>
         <label className={styles.consent}><input name="consent" type="checkbox" required /><span>I agree that SnowAZ may use my contact and stay details to respond to this request. I have read the <Link href="/privacy">Privacy Notice</Link> and <Link href="/cookies">Cookie Notice</Link>. This does not confirm a reservation, and payment instructions are handled offline.</span></label>
-        <button type="submit">Send booking request</button><small>No payment is collected on this website. SnowAZ will send confirmed instructions directly.</small>
+        <button type="submit">Continue to security deposit</button><small>Your dates will be held for two hours. The refundable ₱1,000 deposit is verified manually in MariBank.</small>
       </form>
     </div>
   </main>;
