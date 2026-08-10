@@ -7,7 +7,7 @@ import { submitBookingRequestInline, type BookingActionState } from "./book/acti
 import { propertyProfile } from "@/lib/property";
 import qrImage from "@/assets/maribank-deposit-qr.png";
 import { showError, showSuccess } from "@/lib/sweetalert";
-import { RememberBooking } from "./BookingMemory";
+import { RememberBooking, rememberBooking } from "./BookingMemory";
 
 type BookingModalProps = {
   checkIn: string;
@@ -23,6 +23,7 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
   const dialogRef = useRef<HTMLDivElement>(null);
   const idempotencyKey = useRef(crypto.randomUUID());
   const availabilityNotified = useRef(false);
+  const redirectStarted = useRef(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -38,13 +39,18 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
   }, [onClose]);
 
   useEffect(() => {
-    if (state.status === "success" && !availabilityNotified.current) {
+    if (state.status === "success" && state.depositLink && !redirectStarted.current) {
+      redirectStarted.current = true;
+      rememberBooking({ url: state.depositLink, reference: state.bookingReference, checkIn, checkOut });
+      window.dispatchEvent(new Event("snowaz:availability-changed"));
+      window.location.assign(state.depositLink);
+    } else if (state.status === "success" && !availabilityNotified.current) {
       availabilityNotified.current = true;
       window.dispatchEvent(new Event("snowaz:availability-changed"));
       void showSuccess("Booking request received. Your dates are held for two hours.");
     }
     if (state.status === "error" && state.message) void showError(state.message);
-  }, [state.status, state.message]);
+  }, [state.status, state.message, state.depositLink, state.bookingReference, checkIn, checkOut]);
 
   return <div className="booking-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="booking-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} ref={dialogRef}>

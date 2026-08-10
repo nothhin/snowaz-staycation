@@ -6,11 +6,15 @@ import { useEffect, useState } from "react";
 const storageKey = "snowaz:last-booking:v1";
 type SavedBooking = { url:string; reference?:string; checkIn?:string; checkOut?:string };
 
+export function rememberBooking(booking: SavedBooking) {
+  localStorage.setItem(storageKey, JSON.stringify(booking));
+  window.dispatchEvent(new Event("snowaz:booking-saved"));
+}
+
 export function RememberBooking({ booking }: { booking: SavedBooking }) {
   const { url, reference, checkIn, checkOut } = booking;
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify({ url, reference, checkIn, checkOut }));
-    window.dispatchEvent(new Event("snowaz:booking-saved"));
+    rememberBooking({ url, reference, checkIn, checkOut });
   }, [url, reference, checkIn, checkOut]);
   return null;
 }
