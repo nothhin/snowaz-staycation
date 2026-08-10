@@ -38,7 +38,8 @@ export function DepositControls({ bookingId, bookingStatus = "pending", depositS
 
   const active = !["cancelled", "declined"].includes(bookingStatus);
   return <div className="deposit-admin-actions">
-    {active && (depositStatus === "not_requested" || depositStatus === "awaiting_payment") ? <form action={startAction}><input type="hidden" name="bookingId" value={bookingId} /><button disabled={startPending}>{startPending ? "Preparing…" : depositStatus === "awaiting_payment" ? "Generate new deposit link" : "Approve & prepare deposit"}</button></form> : null}
+    {active && depositStatus === "not_requested" ? <form action={startAction}><input type="hidden" name="bookingId" value={bookingId} /><button disabled={startPending}>{startPending ? "Preparing…" : "Prepare legacy deposit link"}</button></form> : null}
+    {active && depositStatus === "awaiting_payment" ? <small>Private deposit link issued automatically to the guest · awaiting payment</small> : null}
     {active && depositStatus === "submitted" ? <form action={verifyAction}><input type="hidden" name="bookingId" value={bookingId} /><button disabled={verifyPending}>{verifyPending ? "Verifying…" : "Verify in MariBank & confirm"}</button></form> : null}
     {depositStatus === "verified" || depositStatus === "refund_pending" ? <form action={refundAction}><input type="hidden" name="bookingId" value={bookingId} /><input name="refundReference" placeholder="Refund reference" required minLength={6} maxLength={80} /><button disabled={refundPending}>{refundPending ? "Saving…" : "Mark refunded"}</button></form> : null}
     {bookingStatus === "pending" || bookingStatus === "contacted" ? <form action={statusAction} onSubmit={(event) => { void confirmStatusChange(event, "decline"); }}><input type="hidden" name="bookingId" value={bookingId} /><input type="hidden" name="status" value="declined" /><button className="deposit-danger" disabled={statusPending}>Decline request</button></form> : null}

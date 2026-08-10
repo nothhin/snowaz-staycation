@@ -53,11 +53,11 @@ async function saveBookingRequest(formData: FormData) {
 
 export async function submitBookingRequestInline(_previous: BookingActionState, formData: FormData): Promise<BookingActionState> {
   const result = await saveBookingRequest(formData);
-  return result.ok ? { status: "success", bookingReference: result.bookingReference, depositLink: `/deposit/${result.depositToken}`, depositExpiresAt: result.depositExpiresAt } : { status: "error", message: result.message };
+  return result.ok ? { status: "success", bookingReference: result.bookingReference, depositLink: `/deposit/${result.depositToken}?reference=${encodeURIComponent(result.bookingReference)}`, depositExpiresAt: result.depositExpiresAt } : { status: "error", message: result.message };
 }
 
 export async function submitBookingRequest(formData: FormData) {
   const result = await saveBookingRequest(formData);
   if (!result.ok) redirect("/book?error=unavailable");
-  redirect(`/deposit/${result.depositToken}?new=1`);
+  redirect(`/deposit/${result.depositToken}?new=1&reference=${encodeURIComponent(result.bookingReference)}`);
 }

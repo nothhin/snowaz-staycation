@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import AvailabilityCalendar from "./AvailabilityCalendar";
+import { SavedBookingLink } from "./BookingMemory";
 import ScrollReveal from "./ScrollReveal";
 import { amenityHighlights, buildingAmenities, galleryImages, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
 
@@ -50,7 +51,7 @@ export default function Home() {
     </section>
 
     <section className="availability-section" id="availability" data-reveal>
-      <div className="availability-copy"><p className="eyebrow">Plan your visit</p><h2>Find your perfect date.</h2><p>Choose any open date to start your booking request. Pending dates may become available again; confirmed stays remain securely blocked without revealing guest information.</p><div className="contact-card"><strong>Prefer personal assistance?</strong><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Message SnowAZ on Facebook</a><a href={`tel:${propertyProfile.phoneHref}`}>Call {propertyProfile.phoneDisplay}</a></div></div>
+      <div className="availability-copy"><p className="eyebrow">Plan your visit</p><h2>Find your perfect date.</h2><p>Choose any open date to start your booking request. Pending dates may become available again; confirmed stays remain securely blocked without revealing guest information.</p><div className="contact-card"><strong>Already sent a request?</strong><SavedBookingLink /></div><div className="contact-card"><strong>Prefer personal assistance?</strong><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Message SnowAZ on Facebook</a><a href={`tel:${propertyProfile.phoneHref}`}>Call {propertyProfile.phoneDisplay}</a></div></div>
       <AvailabilityCalendar />
     </section>
 

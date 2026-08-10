@@ -7,6 +7,7 @@ import { submitBookingRequestInline, type BookingActionState } from "./book/acti
 import { propertyProfile } from "@/lib/property";
 import qrImage from "@/assets/maribank-deposit-qr.png";
 import { showError, showSuccess } from "@/lib/sweetalert";
+import { RememberBooking } from "./BookingMemory";
 
 type BookingModalProps = {
   checkIn: string;
@@ -49,6 +50,7 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
     <div className="booking-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} ref={dialogRef}>
       <button className="booking-modal-close" type="button" aria-label="Close booking form" onClick={onClose}>×</button>
       {state.status === "success" ? <div className="booking-modal-success" role="status">
+        <RememberBooking booking={{ url:state.depositLink ?? "/booking-status", reference:state.bookingReference, checkIn, checkOut }} />
         <span aria-hidden="true">✓</span><p className="eyebrow">Dates held for two hours</p><h2 id={titleId}>Complete your deposit.</h2>
         <p>Your booking reference is <strong>{state.bookingReference}</strong>. Pay the refundable ₱1,000 security deposit below, then submit the bank reference for SnowAZ verification. Payment does not confirm the reservation until it is verified in MariBank.</p>
         <div className="booking-success-qr"><Image src={qrImage} alt="MariBank InstaPay QR for Merry Shien Gepitulan, account ending 5650" sizes="(max-width: 520px) 82vw, 330px" /><strong>Merry Shien Gepitulan</strong><small>MariBank · account ending 5650 · exactly ₱1,000</small></div>

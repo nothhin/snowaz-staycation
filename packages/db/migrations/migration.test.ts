@@ -12,6 +12,8 @@ const immediateDepositPath = fileURLToPath(new URL("./0008_immediate_deposit_che
 const immediateDeposit = readFileSync(immediateDepositPath, "utf8");
 const adminOperationsPath = fileURLToPath(new URL("./0009_admin_booking_operations.sql", import.meta.url));
 const adminOperations = readFileSync(adminOperationsPath, "utf8");
+const bookingLookupPath = fileURLToPath(new URL("./0010_public_booking_status_lookup.sql", import.meta.url));
+const bookingLookup = readFileSync(bookingLookupPath, "utf8");
 
 describe("initial database migration", () => {
   it("enforces a single property settings row", () => {
@@ -81,6 +83,20 @@ describe("SnowAZ admin booking operations", () => {
   it("routes verified cancellations into the refund workflow", () => {
     expect(adminOperations).toContain("then 'refund_pending'::public.deposit_status");
     expect(adminOperations).toContain("insert into public.audit_log");
+  });
+});
+
+describe("SnowAZ public booking status lookup", () => {
+  it("requires the booking reference and exact normalized guest phone", () => {
+    expect(bookingLookup).toContain("upper(trim(booking_reference))");
+    expect(bookingLookup).toContain("regexp_replace(b.phone, '[^0-9]', '', 'g')");
+  });
+
+  it("returns operational status without guest or bank identity", () => {
+    expect(bookingLookup).toContain("booking_status text");
+    expect(bookingLookup).toContain("deposit_status text");
+    expect(bookingLookup).not.toContain("full_name");
+    expect(bookingLookup).not.toContain("deposit_reference");
   });
 });
 
