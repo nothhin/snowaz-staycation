@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { addPhysicalRoom, signOut, updateRoomStatus, updateRoomType } from "./actions";
 import { AdminMobileNav, AdminNav } from "./AdminNav";
 import { AdminLiveRefresh } from "./AdminLiveRefresh";
+import { AdminFlashAlert } from "./AdminFlashAlert";
 import { BookingRequestsPanel, type AdminEnquiry } from "./BookingRequestsPanel";
 import styles from "./admin.module.css";
 
@@ -66,6 +67,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
         </header>
 
         <div className={styles.content}>
+          <AdminFlashAlert saved={params.saved} error={params.error} />
           {params.saved ? <div className={styles.successNotice} role="status">Changes saved successfully.</div> : null}
           {params.error ? <div className={styles.errorNotice} role="alert">The requested change could not be completed. Check the values and your access level.</div> : null}
           <section id="overview" className={styles.welcome}><div><p className={styles.eyebrow}>Operations overview</p><h1>Good day.</h1><p>Live property activity for SnowAZ Staycation, Mandaue City.</p></div><div className={styles.liveBadge}><strong>System online</strong><span>Guest availability and admin inventory share one source of truth.</span></div></section>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { submitBookingRequestInline, type BookingActionState } from "./book/actions";
 import { propertyProfile } from "@/lib/property";
 import qrImage from "@/assets/maribank-deposit-qr.png";
+import { showError, showSuccess } from "@/lib/sweetalert";
 
 type BookingModalProps = {
   checkIn: string;
@@ -39,8 +40,10 @@ export default function BookingModal({ checkIn, checkOut, onClose }: BookingModa
     if (state.status === "success" && !availabilityNotified.current) {
       availabilityNotified.current = true;
       window.dispatchEvent(new Event("snowaz:availability-changed"));
+      void showSuccess("Booking request received. Your dates are held for two hours.");
     }
-  }, [state.status]);
+    if (state.status === "error" && state.message) void showError(state.message);
+  }, [state.status, state.message]);
 
   return <div className="booking-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="booking-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} ref={dialogRef}>
