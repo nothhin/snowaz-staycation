@@ -10,6 +10,7 @@ import { AdminLiveRefresh } from "./AdminLiveRefresh";
 import { AdminFlashAlert } from "./AdminFlashAlert";
 import { BookingRequestsPanel, type AdminEnquiry } from "./BookingRequestsPanel";
 import styles from "./admin.module.css";
+import { formatStayRange } from "@/lib/date-format";
 
 export const metadata: Metadata = { title: "Property admin | SnowAZ Staycation", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -81,7 +82,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
           <div className={styles.twoColumn}>
             <section id="reservations" className={styles.panel}>
               <div className={styles.panelHeading}><div><p className={styles.eyebrow}>Front desk</p><h2>Upcoming stays</h2></div><span className={styles.countBadge}>{upcoming.length} active</span></div>
-              {upcoming.length ? <div className={styles.reservationList}>{upcoming.slice(0, 8).map((item) => <article key={item.id}><div><strong>{item.guestName}</strong><small>{item.roomNumber} · {item.roomTypeName}</small></div><div><span>{item.checkIn} → {item.checkOut}</span><small>{item.guestCount} guest{item.guestCount === 1 ? "" : "s"} · {php.format(item.totalMinor / 100)}</small></div><b data-status={item.status}>{item.status.replace("_", " ")}</b></article>)}</div> : <div className={styles.emptyState}><span aria-hidden="true">⌁</span><h3>No active reservations</h3><p>New guest and staff reservations will appear here automatically.</p></div>}
+              {upcoming.length ? <div className={styles.reservationList}>{upcoming.slice(0, 8).map((item) => <article key={item.id}><div><strong>{item.guestName}</strong><small>{item.roomNumber} · {item.roomTypeName}</small></div><div><span>{formatStayRange(item.checkIn,item.checkOut)}</span><small>{item.guestCount} guest{item.guestCount === 1 ? "" : "s"} · {php.format(item.totalMinor / 100)}</small></div><b data-status={item.status}>{item.status.replace("_", " ")}</b></article>)}</div> : <div className={styles.emptyState}><span aria-hidden="true">⌁</span><h3>No active reservations</h3><p>New guest and staff reservations will appear here automatically.</p></div>}
             </section>
             <section id="calendar" className={`${styles.panel} ${styles.activityPanel}`}>
               <div className={styles.panelHeading}><div><p className={styles.eyebrow}>Readiness</p><h2>Owner approvals</h2></div></div>

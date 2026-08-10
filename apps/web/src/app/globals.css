@@ -191,6 +191,12 @@ h1,h2,h3 { font-family:var(--font-display),Georgia,serif; font-weight:500; }
 .booking-status-result dd { margin:3px 0 0; font-weight:700; }
 .booking-status-footer { display:flex; flex-wrap:wrap; gap:16px 24px; margin-top:30px; }
 .booking-status-footer a { color:var(--gold-dark); font-weight:700; text-decoration:underline; text-underline-offset:4px; }
+.booking-reference-card { display:flex; align-items:center; justify-content:space-between; gap:22px; margin:24px 0; padding:20px; border:1px solid #d4b47b; border-radius:14px; background:#fff3dc; }
+.booking-reference-card div { display:grid; gap:5px; }
+.booking-reference-card small { color:var(--gold-dark); font-size:9px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+.booking-reference-card strong { font-family:var(--font-display),serif; font-size:30px; letter-spacing:.04em; }
+.booking-reference-card p { margin:0; color:var(--muted); font-size:11px; line-height:1.55; }
+.booking-reference-card button { flex:0 0 auto; padding:12px 17px; border:0; border-radius:999px; background:var(--gold); color:#2d2723; font-weight:800; cursor:pointer; }
 
 @media (max-width:850px) {
   .snow-nav>div,.snow-nav>.gold-button { display:none; }
@@ -226,6 +232,7 @@ h1,h2,h3 { font-family:var(--font-display),Georgia,serif; font-weight:500; }
   .booking-status-shell>header { min-height:68px; }
   .booking-status-card { margin-top:28px; }
   .booking-status-result dl { grid-template-columns:1fr; }
+  .booking-reference-card { align-items:stretch; flex-direction:column; }
 }
 @media (max-width:560px) {
   .snow-hero { min-height:690px; padding-inline:18px; }

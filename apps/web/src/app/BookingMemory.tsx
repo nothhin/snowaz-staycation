@@ -28,3 +28,16 @@ export function SavedBookingLink() {
   if (!booking) return <Link href="/booking-status">Look up booking status</Link>;
   return <><Link href={booking.url}>Continue or check my booking</Link><Link href="/booking-status">Use booking reference instead</Link></>;
 }
+
+export function ForgetBookingIfMatches({ url }: { url: string }) {
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || "null") as SavedBooking | null;
+      if (saved?.url?.split("?")[0] === url.split("?")[0]) {
+        localStorage.removeItem(storageKey);
+        window.dispatchEvent(new Event("snowaz:booking-saved"));
+      }
+    } catch { localStorage.removeItem(storageKey); }
+  }, [url]);
+  return null;
+}

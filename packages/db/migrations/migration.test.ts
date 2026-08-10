@@ -14,6 +14,8 @@ const adminOperationsPath = fileURLToPath(new URL("./0009_admin_booking_operatio
 const adminOperations = readFileSync(adminOperationsPath, "utf8");
 const bookingLookupPath = fileURLToPath(new URL("./0010_public_booking_status_lookup.sql", import.meta.url));
 const bookingLookup = readFileSync(bookingLookupPath, "utf8");
+const privateLinkLifecyclePath = fileURLToPath(new URL("./0011_private_deposit_link_lifecycle.sql", import.meta.url));
+const privateLinkLifecycle = readFileSync(privateLinkLifecyclePath, "utf8");
 
 describe("initial database migration", () => {
   it("enforces a single property settings row", () => {
@@ -97,6 +99,18 @@ describe("SnowAZ public booking status lookup", () => {
     expect(bookingLookup).toContain("deposit_status text");
     expect(bookingLookup).not.toContain("full_name");
     expect(bookingLookup).not.toContain("deposit_reference");
+  });
+});
+
+describe("SnowAZ private deposit link lifecycle", () => {
+  it("makes submitted and verified links expire after checkout", () => {
+    expect(privateLinkLifecycle).toContain("check_out + 30");
+    expect(privateLinkLifecycle).toContain("b.deposit_token_expires_at>now()");
+  });
+
+  it("keeps refund links for thirty days and supports refund pending", () => {
+    expect(privateLinkLifecycle).toContain("deposit_token_expires_at=now()+interval '30 days'");
+    expect(privateLinkLifecycle).toContain("deposit_status in ('verified','refund_pending')");
   });
 });
 
