@@ -12,6 +12,7 @@ coverage/
 Thumbs.db
 .codex-*
 .legacy-app-git/
+.legacy-vercel-casa/
 .mcp.json
 
 # Previous property research retained locally, never published with SnowAZ.
