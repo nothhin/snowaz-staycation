@@ -11,6 +11,7 @@ import { BookingReferenceCard } from "../../BookingReferenceCard";
 import { formatStayDate, formatStayRange } from "@/lib/date-format";
 import { submitDepositReference } from "./actions";
 import styles from "./deposit.module.css";
+import { LiveRouteRefresh } from "../../LiveRouteRefresh";
 
 export const metadata: Metadata = { title: "Security deposit | SnowAZ Staycation", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -29,7 +30,7 @@ export default async function DepositPage({ params, searchParams }: { params: Pr
   if (!request || !request.depositTokenExpiresAt || request.depositTokenExpiresAt <= new Date()) return <InvalidDepositLink token={token} />;
   const finished = ["submitted", "verified", "refund_pending", "refunded", "partially_withheld", "forfeited"].includes(request.depositStatus);
   const bookingReference = /^SNOWAZ-[A-Z0-9]{8}$/.test(query.reference ?? "") ? query.reference : undefined;
-  return <main className={styles.shell}><header><Link href="/">SnowAZ Staycation</Link><span>Private deposit instructions</span></header><article className={styles.card}>
+  return <main className={styles.shell}><LiveRouteRefresh /><header><Link href="/">SnowAZ Staycation</Link><span>Live private booking status</span></header><article className={styles.card}>
     <RememberBooking booking={{ url:`/deposit/${token}${bookingReference ? `?reference=${bookingReference}` : ""}`, reference:bookingReference, checkIn:request.checkIn, checkOut:request.checkOut }} />
     <p className={styles.eyebrow}>Approved booking request</p><h1>{finished ? request.depositStatus === "refunded" ? "Deposit refunded." : "Payment details received." : "Secure your stay."}</h1>
     {bookingReference ? <BookingReferenceCard reference={bookingReference} /> : null}

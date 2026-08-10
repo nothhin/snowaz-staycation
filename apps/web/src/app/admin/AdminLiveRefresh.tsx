@@ -17,7 +17,7 @@ export function AdminLiveRefresh() {
     };
     const refreshWhenVisible = () => { if (document.visibilityState === "visible") refresh(); };
     setLastUpdated(new Date());
-    const interval = window.setInterval(refresh, 15_000);
+    const interval = window.setInterval(refresh, 5_000);
     window.addEventListener("focus", refresh);
     window.addEventListener("snowaz:admin-changed", refresh);
     document.addEventListener("visibilitychange", refreshWhenVisible);

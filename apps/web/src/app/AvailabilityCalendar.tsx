@@ -50,7 +50,7 @@ export default function AvailabilityCalendar() {
     const refreshWhenVisible = () => { if (document.visibilityState === "visible") refreshSilently(); };
 
     void refresh(true);
-    const interval = window.setInterval(refreshSilently, 10_000);
+    const interval = window.setInterval(refreshSilently, 5_000);
     window.addEventListener("focus", refreshSilently);
     window.addEventListener("snowaz:availability-changed", refreshSilently);
     document.addEventListener("visibilitychange", refreshWhenVisible);
