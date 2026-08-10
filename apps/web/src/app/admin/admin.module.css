@@ -412,6 +412,158 @@
   margin: 2px 0 0;
   overflow-wrap: anywhere;
 }
+.bookingCardGrid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.bookingSummaryCard {
+  min-width: 0;
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+  border: 1px solid #e8ddd1;
+  border-radius: 16px;
+  background: #fffdf9;
+}
+.bookingSummaryCard > div strong,
+.bookingSummaryCard > div span {
+  display: block;
+}
+.bookingSummaryCard > div strong {
+  font-family: var(--font-display), serif;
+  font-size: 23px;
+  font-weight: 600;
+}
+.bookingSummaryCard > div span {
+  margin-top: 5px;
+  color: #776e66;
+  font-size: 9px;
+}
+.bookingSummaryCard dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.bookingSummaryCard dt {
+  color: #8b8178;
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.bookingSummaryCard dd {
+  margin: 3px 0 0;
+  font-size: 9px;
+  text-transform: capitalize;
+}
+.bookingSummaryCard > button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: #3c342d;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.bookingModalBackdrop {
+  position: fixed;
+  z-index: 410;
+  inset: 0;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  background: rgba(38, 29, 23, 0.62);
+  backdrop-filter: blur(4px);
+}
+.bookingInfoModal {
+  width: min(760px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 20px;
+  background: #fffaf3;
+  box-shadow: 0 30px 90px rgba(30, 22, 17, 0.35);
+}
+.bookingInfoModal > header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  padding: 22px 26px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #e8ddd1;
+  background: #fffaf3;
+}
+.bookingInfoModal h2 {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: 36px;
+  font-weight: 600;
+}
+.bookingInfoModal > header > button {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border: 1px solid #ded1c3;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 25px;
+  cursor: pointer;
+}
+.bookingModalBody {
+  padding: 24px 26px 28px;
+}
+.bookingInfoGrid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.bookingInfoGrid > div {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid #eadfd3;
+  border-radius: 10px;
+  background: #fff;
+}
+.bookingInfoGrid dt {
+  color: #8b8178;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.bookingInfoGrid dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
+.bookingModalActions {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.bookingModalActions > a {
+  min-height: 38px;
+  padding: 0 15px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #eee3d7;
+  color: #3c342d;
+  font-size: 9px;
+  font-weight: 800;
+}
+.bookingModalControls {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e8ddd1;
+}
 .callGuestButton {
   width: max-content;
   min-height: 34px;
@@ -1059,6 +1211,17 @@
     color: #1b263b;
     font-size: 20px;
   }
+  .mobileMenu > span {
+    display: grid;
+    gap: 4px;
+  }
+  .mobileMenu i {
+    width: 20px;
+    height: 2px;
+    display: block;
+    border-radius: 2px;
+    background: currentColor;
+  }
   .mobileBackdrop {
     display: block;
     position: fixed;
@@ -1213,6 +1376,25 @@
   }
   .bookingRequestList article > div:nth-child(2) {
     grid-column: auto;
+  }
+  .bookingCardGrid {
+    grid-template-columns: 1fr;
+  }
+  .bookingModalBackdrop {
+    padding: 0;
+    align-items: end;
+  }
+  .bookingInfoModal {
+    width: 100%;
+    max-height: 94vh;
+    border-radius: 20px 20px 0 0;
+  }
+  .bookingInfoModal > header,
+  .bookingModalBody {
+    padding-inline: 18px;
+  }
+  .bookingInfoGrid {
+    grid-template-columns: 1fr;
   }
   .confirmedStaysButton {
     width: 100%;
