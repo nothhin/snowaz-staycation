@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Montserrat } from "next/font/google";
 import "./globals.css";
 import "sweetalert2/dist/sweetalert2.min.css";
+import GuestMenu from "./GuestMenu";
 
 const bodyFont = Montserrat({ variable: "--font-body", subsets: ["latin"] });
 const displayFont = Cormorant_Garamond({ variable: "--font-display", subsets: ["latin"], weight: ["400", "500", "600", "700"] });
@@ -12,5 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" className={`${bodyFont.variable} ${displayFont.variable}`}><body>{children}</body></html>;
+  return <html lang="en" className={`${bodyFont.variable} ${displayFont.variable}`}><body>{children}<GuestMenu /></body></html>;
 }
