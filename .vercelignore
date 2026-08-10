@@ -1,0 +1,11 @@
+**/node_modules/**
+**/.next/**
+**/.netlify/**
+**/dist/**
+**/coverage/**
+.git/**
+.legacy-app-git/**
+.legacy-vercel-casa/**
+.env*
+.mcp.json
+*.log
