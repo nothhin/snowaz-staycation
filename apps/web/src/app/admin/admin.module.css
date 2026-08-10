@@ -56,6 +56,17 @@
 .reservationList strong, .reservationList small, .reservationList span { display: block; font-size: 10px; }
 .reservationList small { margin-top: 4px; color: #849094; }
 .reservationList b { padding: 6px 8px; background: #edf8f1; color: #276348; font-size: 8px; text-transform: uppercase; white-space: nowrap; }
+.bookingRequestList { max-height: 520px; }
+.bookingRequestList article { grid-template-columns: minmax(150px,.8fr) minmax(210px,1fr) minmax(220px,.9fr); align-items:start; }
+.depositColumn { display:grid; justify-items:end; gap:7px; }
+.depositBadge { padding:6px 8px; background:#f5f1eb; color:#536269; font-size:8px; font-weight:800; text-transform:uppercase; white-space:nowrap; }
+.depositBadge[data-status="submitted"] { background:#fff4df; color:#9a651e; }
+.depositBadge[data-status="verified"],.depositBadge[data-status="refunded"] { background:#edf8f1; color:#276348; }
+:global(.deposit-admin-actions) { display:grid; justify-items:end; gap:6px; }
+:global(.deposit-admin-actions form) { display:flex; justify-content:flex-end; gap:6px; }
+:global(.deposit-admin-actions input) { min-height:34px; min-width:120px; border:1px solid #d9d2c7; padding:0 8px; font-size:9px; }
+:global(.deposit-admin-actions button),:global(.deposit-admin-actions a) { min-height:34px; border:0; padding:0 10px; display:inline-flex; align-items:center; justify-content:center; background:#1b263b; color:#fff; font-size:8px; font-weight:800; cursor:pointer; }
+:global(.deposit-admin-actions small) { max-width:220px; color:#7c878b; font-size:8px; line-height:1.45; text-align:right; }
 .emptyState { height: 270px; display: grid; place-items: center; align-content: center; text-align: center; color: #768287; }
 .emptyState > span { font-size: 35px; color: #c0a890; }
 .emptyState h3 { margin: 10px 0 4px; font-family: var(--font-display), serif; color: #354b54; }
@@ -147,6 +158,11 @@
   .addRoomForm { grid-template-columns: 1fr; }
   .reservationList article { grid-template-columns: 1fr auto; }
   .reservationList article > div:nth-child(2) { grid-column: 1; }
+  .bookingRequestList article { grid-template-columns:1fr; }
+  .bookingRequestList article > div:nth-child(2) { grid-column:auto; }
+  .depositColumn,:global(.deposit-admin-actions) { justify-items:start; }
+  :global(.deposit-admin-actions form) { justify-content:flex-start; flex-wrap:wrap; }
+  :global(.deposit-admin-actions small) { text-align:left; }
 }
 
 @media (max-width: 390px) {

@@ -30,6 +30,7 @@ export const staffStatus = pgEnum("staff_status", ["invited", "active", "suspend
 export const outboxStatus = pgEnum("outbox_status", ["pending", "processing", "delivered", "failed", "dead_letter"]);
 export const idempotencyStatus = pgEnum("idempotency_status", ["processing", "completed", "failed"]);
 export const bookingRequestStatus = pgEnum("booking_request_status", ["pending", "contacted", "confirmed", "declined", "cancelled"]);
+export const depositStatus = pgEnum("deposit_status", ["not_requested", "awaiting_payment", "submitted", "verified", "refund_pending", "refunded", "partially_withheld", "forfeited"]);
 
 export const resortSettings = pgTable("resort_settings", {
   id: boolean("id").primaryKey().default(true),
@@ -136,11 +137,22 @@ export const bookingRequests = pgTable("booking_requests", {
   source: text("source").notNull().default("guest_web"),
   consentVersion: text("consent_version").notNull(),
   consentedAt: timestamp("consented_at", { withTimezone: true }).defaultNow().notNull(),
+  depositStatus: depositStatus("deposit_status").notNull().default("not_requested"),
+  depositAmountMinor: bigint("deposit_amount_minor", { mode: "number" }).notNull().default(100000),
+  depositTokenHash: text("deposit_token_hash"),
+  depositTokenExpiresAt: timestamp("deposit_token_expires_at", { withTimezone: true }),
+  depositSenderName: text("deposit_sender_name"),
+  depositReference: text("deposit_reference"),
+  depositSubmittedAt: timestamp("deposit_submitted_at", { withTimezone: true }),
+  depositVerifiedAt: timestamp("deposit_verified_at", { withTimezone: true }),
+  depositRefundReference: text("deposit_refund_reference"),
+  depositRefundedAt: timestamp("deposit_refunded_at", { withTimezone: true }),
   ...timestamps,
 }, (table) => [
   uniqueIndex("booking_requests_idempotency_key_unique").on(table.idempotencyKey),
   index("booking_requests_status_created_idx").on(table.status, table.createdAt),
   index("booking_requests_check_in_idx").on(table.checkIn),
+  uniqueIndex("booking_requests_deposit_token_hash_unique").on(table.depositTokenHash),
 ]);
 
 export const reservations = pgTable("reservations", {

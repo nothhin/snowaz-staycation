@@ -6,6 +6,8 @@ const migrationPath = fileURLToPath(new URL("./0001_initial.sql", import.meta.ur
 const migration = readFileSync(migrationPath, "utf8");
 const provisionalSeedPath = fileURLToPath(new URL("./0002_provisional_catalog.sql", import.meta.url));
 const provisionalSeed = readFileSync(provisionalSeedPath, "utf8");
+const depositMigrationPath = fileURLToPath(new URL("./0006_snowaz_manual_deposit_workflow.sql", import.meta.url));
+const depositMigration = readFileSync(depositMigrationPath, "utf8");
 
 describe("initial database migration", () => {
   it("enforces a single property settings row", () => {
@@ -38,6 +40,19 @@ describe("initial database migration", () => {
     for (const table of protectedTables) {
       expect(migration).toContain(`alter table ${table} enable row level security;`);
     }
+  });
+});
+
+describe("SnowAZ manual deposit workflow", () => {
+  it("stores tokens as hashes and requires complete payment evidence", () => {
+    expect(depositMigration).toContain("deposit_token_hash text");
+    expect(depositMigration).toContain("booking_requests_deposit_token_hash_unique");
+    expect(depositMigration).toContain("booking_requests_deposit_submission_complete");
+  });
+
+  it("keeps verified booking requests blocked on the public calendar", () => {
+    expect(depositMigration).toContain("new.status in ('pending', 'contacted', 'confirmed')");
+    expect(depositMigration).toContain("new.status = 'confirmed' then 'booked'");
   });
 });
 
