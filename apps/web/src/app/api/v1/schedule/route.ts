@@ -1,7 +1,5 @@
-import { and, gt, inArray, lt } from "drizzle-orm";
-import { bookingRequests, createDatabase, reservations } from "@casa-marga/db";
 import { stayDateSchema, stayNights } from "@casa-marga/shared/booking";
-import { parseDatabaseEnvironment } from "@/lib/server/env";
+import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -17,27 +15,21 @@ export async function GET(request: Request) {
     return Response.json({ requestId, error: { code: "INVALID_SCHEDULE_RANGE", message: "Choose a valid calendar range of up to 93 days." } }, { status: 400, headers: noStoreHeaders });
   }
 
-  const configuration = parseDatabaseEnvironment();
-  if (!configuration.success) {
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) {
     return Response.json({ requestId, error: { code: "SERVICE_NOT_CONFIGURED", message: "Live availability is not configured yet." } }, { status: 503, headers: noStoreHeaders });
   }
 
-  const database = createDatabase(configuration.data.DATABASE_URL);
   try {
-    const confirmed = await database.db.select({ checkIn: reservations.checkIn, checkOut: reservations.checkOut })
-      .from(reservations)
-      .where(and(inArray(reservations.status, ["confirmed", "checked_in"]), lt(reservations.checkIn, to.data), gt(reservations.checkOut, from.data)));
-    const enquiries = await database.db.select({ checkIn: bookingRequests.checkIn, checkOut: bookingRequests.checkOut })
-      .from(bookingRequests)
-      .where(and(inArray(bookingRequests.status, ["pending", "contacted"]), lt(bookingRequests.checkIn, to.data), gt(bookingRequests.checkOut, from.data)));
+    const { data, error } = await supabase.from("snowaz_calendar_ranges")
+      .select("check_in,check_out,display_status")
+      .lt("check_in", to.data).gt("check_out", from.data);
+    if (error) throw error;
 
     return Response.json({ requestId, data: { from: from.data, to: to.data, ranges: [
-      ...confirmed.map((range) => ({ ...range, status: "booked" as const })),
-      ...enquiries.map((range) => ({ ...range, status: "pending" as const })),
+      ...(data ?? []).map((range) => ({ checkIn: range.check_in, checkOut: range.check_out, status: range.display_status })),
     ] } }, { headers: noStoreHeaders });
   } catch {
     return Response.json({ requestId, error: { code: "SCHEDULE_UNAVAILABLE", message: "Availability could not be checked right now." } }, { status: 503, headers: noStoreHeaders });
-  } finally {
-    await database.close();
   }
 }
