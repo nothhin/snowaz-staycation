@@ -8,4 +8,5 @@
 .legacy-vercel-casa/**
 .env*
 .mcp.json
+.token-optimizer/**
 *.log
