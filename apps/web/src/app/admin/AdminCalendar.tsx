@@ -173,7 +173,7 @@ export function AdminCalendar({ bookings }: { bookings: AdminEnquiry[] }) {
                     <dt>Guests</dt>
                     <dd>
                       {item.guestCount} ·{" "}
-                      {item.guestCount >= 4 ? "2 bedrooms" : "1 bedroom"}
+                      {item.guestCount > 2 ? "2 bedrooms" : "1 bedroom"}
                     </dd>
                   </div>
                   <div>

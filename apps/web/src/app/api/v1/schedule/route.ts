@@ -23,13 +23,14 @@ export async function GET(request: Request) {
   try {
     const { error: expiryError } = await supabase.rpc("expire_snowaz_deposit_holds");
     if (expiryError) throw expiryError;
-    const { data, error } = await supabase.from("snowaz_calendar_ranges")
-      .select("check_in,check_out,display_status")
-      .lt("check_in", to.data).gt("check_out", from.data);
+    const { data, error } = await supabase.rpc("get_snowaz_schedule", {
+      range_start: from.data,
+      range_end: to.data,
+    });
     if (error) throw error;
 
     return Response.json({ requestId, data: { from: from.data, to: to.data, ranges: [
-      ...(data ?? []).map((range) => ({ checkIn: range.check_in, checkOut: range.check_out, status: range.display_status })),
+      ...(data ?? []).map((range: { check_in: string; check_out: string; display_status: string; public_label: string | null }) => ({ checkIn: range.check_in, checkOut: range.check_out, status: range.display_status, label: range.public_label })),
     ] } }, { headers: noStoreHeaders });
   } catch {
     return Response.json({ requestId, error: { code: "SCHEDULE_UNAVAILABLE", message: "Availability could not be checked right now." } }, { status: 503, headers: noStoreHeaders });

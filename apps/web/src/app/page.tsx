@@ -3,7 +3,7 @@ import Link from "next/link";
 import AvailabilityCalendar from "./AvailabilityCalendar";
 import { SavedBookingLink } from "./BookingMemory";
 import ScrollReveal from "./ScrollReveal";
-import { amenityHighlights, buildingAmenities, galleryImages, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
+import { amenityHighlights, buildingAmenities, checkoutRules, galleryImages, houseRules, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
 
 export default function Home() {
   return <main><ScrollReveal />
@@ -16,7 +16,7 @@ export default function Home() {
         <a className="gold-button" href="#availability">Book your stay</a>
       </nav>
       <div className="snow-hero-copy">
-        <p>1BR for 2 guests · 2BR for 4+ guests · Mandaue City</p>
+        <p>1BR · 2 guests · ₱1,800/night &nbsp; | &nbsp; 2BR · 4 guests · ₱2,300/night</p>
         <h1>Your cozy escape,<br /><em>away from home.</em></h1>
         <span>Stay. Relax. Create memories.</span>
         <div className="hero-actions"><a className="gold-button" href="#availability">View availability</a><a className="ghost-button" href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Chat on Messenger</a></div>
@@ -27,7 +27,7 @@ export default function Home() {
 
     <section className="snow-section snow-intro" id="about" data-reveal>
       <div><p className="eyebrow">Welcome to SnowAZ</p><h2>Feel at home in the heart of the city.</h2></div>
-      <p>This minimalist two-bedroom condo is close to Oakridge Business Park, Cebu I.T. Park, schools, hospitals, and malls. Its living and dining area, coffee-bar corner, and comfortable sleeping spaces can accommodate 5–8 guests.</p>
+      <p>Book a fully furnished, thoughtfully designed two-bedroom condo near malls, cafés, and business hubs. Bedroom 1 is good for 2 guests, while Bedroom 2 is good for 3 guests. The unit can accommodate up to 8 guests with additional sleeping arrangements.</p>
     </section>
 
     <section className="snow-section" id="gallery" data-reveal>
@@ -41,12 +41,13 @@ export default function Home() {
       <div className="details-heading"><p className="eyebrow">Inside your stay</p><h2>Fully furnished for a comfortable Cebu stay.</h2><p>Available for daily or weekly rental. Check-in is at 2:00 PM and check-out is at 11:00 AM; flexible timing may be arranged depending on availability.</p></div>
       <div className="details-columns">
         <article><h3>Unit amenities</h3><ul>{unitAmenities.map((item) => <li key={item}>{item}</li>)}</ul></article>
-        <article><h3>Building &amp; safety</h3><ul>{buildingAmenities.map((item) => <li key={item}>{item}</li>)}<li>CCTV surveillance</li><li>Fire exits</li><li>Flood and earthquake safety provisions</li></ul></article>
+        <article><h3>Building &amp; safety</h3><ul>{buildingAmenities.map((item) => <li key={item}>{item}</li>)}</ul></article>
       </div>
       <div className="important-notes">
-        <article><strong>Bedroom access</strong><p>The displayed nightly price covers 2 guests with access to 1 bedroom. Book a minimum of 4 guests for both bedrooms, or message SnowAZ for assistance.</p></article>
-        <article><strong>Security deposit</strong><p>A refundable ₱1,000 security deposit is required before check-in and returned after checkout clearing.</p></article>
-        <article><strong>House rules</strong><p>No smoking inside the unit—a ₱5,000 penalty applies. No pets, no balcony, and no on-site parking; parking arrangements may be requested.</p></article>
+        <article><strong>Stay rates</strong><p>1 bedroom for up to 2 guests: ₱1,800/night. Both bedrooms for up to 4 guests: ₱2,300/night. Each guest beyond 4 is an additional ₱300 per night, up to 8 guests total.</p></article>
+        <article><strong>Required down payment</strong><p>A ₱1,000 booking down payment is required to secure the stay and is deducted from the total accommodation payment.</p></article>
+        <article><strong>House rules</strong><ul>{houseRules.map((rule) => <li key={rule}>{rule}</li>)}</ul></article>
+        <article><strong>Before you leave</strong><ul>{checkoutRules.map((rule) => <li key={rule}>{rule}</li>)}</ul></article>
       </div>
     </section>
 
@@ -60,7 +61,7 @@ export default function Home() {
       <div className="location-image"><Image src="/images/snowaz/dining-wide.jpg" alt="Elegant SnowAZ Staycation dining area" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
     </section>
 
-    <section className="snow-contact" id="contact" data-reveal><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={180} height={180} /><div><p className="eyebrow">Ready when you are</p><h2>Let’s plan your stay.</h2><p>For final rates, bedroom access, parking arrangements, flexible arrival times, and immediate availability confirmation, connect directly with SnowAZ Staycation.</p><div className="contact-links"><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Messenger</a><a href={`tel:${propertyProfile.phoneHref}`}>{propertyProfile.phoneDisplay}</a><a href={`mailto:${propertyProfile.email}`}>{propertyProfile.email}</a><a href={propertyProfile.facebookUrl} target="_blank" rel="noreferrer">Facebook page</a></div></div></section>
+    <section className="snow-contact" id="contact" data-reveal><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={180} height={180} /><div><p className="eyebrow">Ready when you are</p><h2>Let’s plan your stay.</h2><p>Perfect for family vacations, group trips, or work-from-home stays. Connect directly with SnowAZ for immediate availability confirmation.</p><div className="contact-links"><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Messenger</a><a href={`tel:${propertyProfile.phoneHref}`}>{propertyProfile.phoneDisplay}</a><a href={`mailto:${propertyProfile.email}`}>{propertyProfile.email}</a><a href={propertyProfile.facebookUrl} target="_blank" rel="noreferrer">Facebook page</a></div></div></section>
 
     <footer className="snow-footer"><a className="snow-brand" href="#home"><span><strong>SnowAZ Staycation</strong><small>{propertyProfile.tagline}</small></span></a><p>{propertyProfile.address}</p><div className="snow-footer-meta"><nav aria-label="Legal"><Link href="/privacy">Privacy Notice</Link><Link href="/cookies">Cookie Notice</Link></nav><p>© {new Date().getFullYear()} SnowAZ Staycation</p></div></footer>
   </main>;

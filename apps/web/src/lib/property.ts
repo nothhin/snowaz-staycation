@@ -24,28 +24,41 @@ export const galleryImages = [
 
 export const amenityHighlights = [
   ["2 BR", "Condo unit"],
-  ["5–8", "Guest capacity"],
+  ["Up to 8", "Guest capacity"],
   ["24/7", "Building security"],
   ["Direct", "Owner assistance"],
 ] as const;
 
 export const stayHighlights = [
   { title: "Two-bedroom comfort", copy: "A fully furnished two-bedroom condo with a living and dining area, coffee-bar corner, and one bathroom." },
-  { title: "For families and friends", copy: "Comfortably arranged for staycations, family visits, and barkada gatherings of up to 5–8 guests." },
+  { title: "For families and friends", copy: "Comfortably arranged for family vacations, group trips, and work-from-home stays of up to 8 guests." },
   { title: "Easy direct booking", copy: "View the calendar, choose your preferred dates, and send a request directly to SnowAZ." },
 ] as const;
 
 export const unitAmenities = [
-  "Wi-Fi", "Hot and cold shower", "2 air conditioners", "Electric tower fan",
-  "Humidifier", "32-inch TV", "Mini refrigerator", "Microwave",
-  "Electric kettle", "Rice cooker", "Range hood", "Kitchen utensils",
-  "Bidet", "Sofa", "3 side lamps", "Smart lock",
-  "Single-size bunk bed", "2 double-size beds with a single-size bunk bed",
+  "Fast Wi-Fi", "32-inch Smart TV with Netflix", "2 air-conditioned bedrooms",
+  "2 humidifiers", "Fresh linens, pillows, and blankets", "Towels and basic toiletries",
+  "Hot and cold shower", "Spacious living and dining area", "Instagrammable photo corner",
+  "Fully equipped kitchen with utensils, cookware, and dining ware", "Microwave oven",
+  "Refrigerator", "Rice cooker", "Induction cooker", "Electric kettle",
+  "Complimentary drinking water", "Bedroom 1: 1 standard single bunk bed (good for 2 guests)",
+  "Bedroom 2: 1 Twin-over-double bunk bed (good for 3 guests)",
 ] as const;
 
 export const buildingAmenities = [
-  "Playground", "Elevator", "Function hall", "24/7 security",
+  "Playground (coming soon)", "Elevator", "Function hall (coming soon)", "24/7 security",
   "Basketball court (coming soon)", "Swimming pool (coming soon)",
+  "CCTV surveillance", "Fire exits",
+] as const;
+
+export const houseRules = [
+  "Quiet hours are from 11:00 PM to 7:00 AM",
+  "Commercial photography is allowed",
+  "No smoking inside the unit; a ₱5,000 penalty applies",
+] as const;
+
+export const checkoutRules = [
+  "Gather used towels", "Throw trash away", "Turn things off", "Return keys", "Lock up",
 ] as const;
 
 export const nearbyPlaces = [

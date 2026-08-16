@@ -161,30 +161,30 @@ export default async function AdminDashboard({
             aria-label="SnowAZ operating rules"
           >
             <article className={styles.compactPanel}>
-              <p className={styles.eyebrow}>Bedroom access</p>
-              <h2>1BR or 2BR</h2>
+              <p className={styles.eyebrow}>Stay rates</p>
+              <h2>1BR or 2BR pricing</h2>
               <p>
-                Two guests receive access to one bedroom. Open both bedrooms for
-                bookings of at least four guests, or after direct owner
-                approval.
+                1BR is ₱1,800/night for up to two guests. 2BR is ₱2,300/night
+                for up to four guests, plus ₱300 per additional guest/night.
               </p>
               <span>Maximum 8 guests</span>
             </article>
             <article className={styles.compactPanel}>
               <p className={styles.eyebrow}>Deposit policy</p>
-              <h2>₱1,000 security deposit</h2>
+              <h2>₱1,000 down payment</h2>
               <p>
-                Verify every payment in MariBank. The deposit is refundable
-                after checkout clearing, subject to documented charges.
+                Verify every payment in MariBank. The down payment is deducted
+                from the guest’s total accommodation payment.
               </p>
               <span>Manual bank verification</span>
             </article>
             <article className={styles.compactPanel}>
               <p className={styles.eyebrow}>House rules</p>
-              <h2>Protect the unit</h2>
+              <h2>Quiet hours: 11 PM–7 AM</h2>
               <p>
-                No smoking inside—the stated penalty is ₱5,000. No pets, no
-                balcony, and parking requires prior arrangement.
+                Commercial photography is allowed. No smoking inside—the stated
+                penalty is ₱5,000. At checkout, gather towels, discard trash,
+                turn things off, return the keys, and lock up.
               </p>
               <span>Rules must be acknowledged</span>
             </article>

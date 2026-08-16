@@ -14,10 +14,12 @@ import { BookingReferenceCard } from "../../BookingReferenceCard";
 import { formatStayDate, formatStayRange } from "@/lib/date-format";
 import { submitDepositReference } from "./actions";
 import styles from "./deposit.module.css";
+import BookingPriceReceipt from "../../BookingPriceReceipt";
 import { LiveRouteRefresh } from "../../LiveRouteRefresh";
+import { GuestCountEditor } from "./GuestCountEditor";
 
 export const metadata: Metadata = {
-  title: "Security deposit | SnowAZ Staycation",
+  title: "Booking down payment | SnowAZ Staycation",
   robots: { index: false, follow: false },
 };
 export const dynamic = "force-dynamic";
@@ -54,6 +56,8 @@ export default async function DepositPage({
         checkIn: row.check_in as string,
         checkOut: row.check_out as string,
         guestCount: row.guest_count as number,
+        bedroomChoice: row.bedroom_choice as string,
+        parkingType: row.parking_type as "none" | "car" | "motorcycle",
         depositStatus: row.deposit_status as string,
         depositAmountMinor: Number(row.deposit_amount_minor),
         depositTokenExpiresAt: row.deposit_token_expires_at
@@ -98,7 +102,7 @@ export default async function DepositPage({
         <h1>
           {finished
             ? request.depositStatus === "refunded"
-              ? "Deposit refunded."
+              ? "Down payment refunded."
               : "Payment details received."
             : "Secure your stay."}
         </h1>
@@ -112,12 +116,28 @@ export default async function DepositPage({
             {request.guestCount} guest{request.guestCount === 1 ? "" : "s"}
           </span>
         </div>
+        {!finished ? (
+          <GuestCountEditor
+            token={token}
+            checkIn={request.checkIn}
+            checkOut={request.checkOut}
+            initialGuests={request.guestCount}
+            initialBedroom={request.bedroomChoice}
+            initialParking={request.parkingType}
+          />
+        ) : (
+          <BookingPriceReceipt
+            checkIn={request.checkIn}
+            checkOut={request.checkOut}
+            guests={request.guestCount}
+          />
+        )}
         {finished ? (
           <section className={styles.complete}>
             <span aria-hidden="true">✓</span>
             <h2>
               {request.depositStatus === "verified"
-                ? "Deposit verified—your booking is confirmed."
+                ? "Down payment verified—your booking is confirmed."
                 : request.depositStatus === "refund_pending"
                   ? "Your cancellation is recorded and the refund is being processed."
                   : request.depositStatus === "refunded"
@@ -192,7 +212,7 @@ export default async function DepositPage({
                   </p>
                   <MessengerReceiptLink
                     className={styles.messengerAction}
-                    message={`Hello SnowAZ! I am ${request.fullName}. I paid the ₱1,000 security deposit for my stay on ${formatStayDate(request.checkIn)} to ${formatStayDate(request.checkOut)}. I am attaching my payment receipt for verification.`}
+                    message={`Hello SnowAZ! I am ${request.fullName}. I paid the ₱1,000 booking down payment for my stay on ${formatStayDate(request.checkIn)} to ${formatStayDate(request.checkOut)}. I am attaching my payment receipt for verification.`}
                   />
                 </article>
               </div>
@@ -244,7 +264,7 @@ export default async function DepositPage({
           <MessengerReceiptLink
             className={styles.messengerAction}
             label="Request cancellation or refund in Messenger"
-            message={`Hello SnowAZ! I am ${request.fullName}. I would like help cancelling my stay on ${formatStayDate(request.checkIn)} to ${formatStayDate(request.checkOut)}${request.depositStatus === "verified" || request.depositStatus === "refund_pending" ? " and requesting the return of my ₱1,000 security deposit" : ""}. Please confirm the next steps.`}
+            message={`Hello SnowAZ! I am ${request.fullName}. I would like help cancelling my stay on ${formatStayDate(request.checkIn)} to ${formatStayDate(request.checkOut)}${request.depositStatus === "verified" || request.depositStatus === "refund_pending" ? " and requesting the return of my ₱1,000 down payment" : ""}. Please confirm the next steps.`}
           />
           <div className={styles.helpActions}>
             <a

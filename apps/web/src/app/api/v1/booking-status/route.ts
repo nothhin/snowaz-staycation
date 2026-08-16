@@ -12,5 +12,5 @@ export async function POST(request: Request) {
   const { data, error } = await supabase.rpc("lookup_snowaz_booking_status", { booking_reference:parsed.data.reference, guest_phone:parsed.data.phone });
   const row = Array.isArray(data) ? data[0] : null;
   if (error || !row) return NextResponse.json({ error:{ message:"Booking not found." } }, { status:404, headers:{ "Cache-Control":"no-store" } });
-  return NextResponse.json({ data:{ checkIn:row.check_in, checkOut:row.check_out, guests:row.guest_count, status:row.booking_status, depositStatus:row.deposit_status, depositExpiresAt:row.deposit_expires_at } }, { headers:{ "Cache-Control":"no-store, max-age=0" } });
+  return NextResponse.json({ data:{ checkIn:row.check_in, checkOut:row.check_out, guests:row.guest_count, status:row.booking_status, stayStatus:row.stay_status, depositStatus:row.deposit_status, depositExpiresAt:row.deposit_expires_at, bedroomChoice:row.bedroom_choice, totalMinor:Number(row.total_minor), paidMinor:Number(row.paid_minor), remainingMinor:Number(row.remaining_minor) } }, { headers:{ "Cache-Control":"no-store, max-age=0" } });
 }

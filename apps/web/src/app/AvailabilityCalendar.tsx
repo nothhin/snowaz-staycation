@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import BookingModal from "./BookingModal";
 
-type Range = { checkIn: string; checkOut: string; status: "pending" | "booked" };
+type Range = { checkIn: string; checkOut: string; status: "pending" | "booked" | "unavailable"; label?: string | null };
 type ScheduleResponse = { data?: { ranges: Range[] }; error?: { message: string } };
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -73,9 +73,10 @@ export default function AvailabilityCalendar() {
     setError("");
     setMonth(new Date(month.getFullYear(), month.getMonth() + offset, 1));
   };
-  const statusFor = (dateIso: string) => {
+  const availabilityFor = (dateIso: string) => {
     const matches = ranges.filter((range) => range.checkIn <= dateIso && range.checkOut > dateIso);
-    return matches.some((range) => range.status === "booked") ? "booked" : matches.some((range) => range.status === "pending") ? "pending" : "open";
+    const status = matches.some((range) => range.status === "booked") ? "booked" : matches.some((range) => range.status === "unavailable") ? "unavailable" : matches.some((range) => range.status === "pending") ? "pending" : "open";
+    return { status, label: matches.find((range) => range.status === "unavailable")?.label || "Unavailable" };
   };
   const chooseDate = (date: Date) => setSelectedStay({ checkIn: iso(date), checkOut: iso(addDays(date, 1)) });
   const currentMonth = month.getFullYear() === today.getFullYear() && month.getMonth() === today.getMonth();
@@ -88,17 +89,18 @@ export default function AvailabilityCalendar() {
         <button type="button" aria-label="Next month" onClick={() => changeMonth(1)}>→</button>
       </div>
     </div>
+    <div className="calendar-booking-hint" role="note"><span aria-hidden="true">☝</span><div><strong>Click an open date to request a reservation</strong><small>Select your preferred check-in date, then complete the booking form.</small></div></div>
     {error ? <div className="calendar-notice" role="status">{error} You can still contact us directly to check your dates.</div> : null}
     <div className="calendar-grid" aria-busy={loading}>
       {weekdays.map((day) => <span className="weekday" key={day}>{day}</span>)}
       {cells.map((date, index) => {
         if (!date) return <span className="calendar-empty" aria-hidden="true" key={`empty-${index}`} />;
-        const dateIso = iso(date); const past = dateIso < todayIso; const status = past ? "past" : statusFor(dateIso);
-        return <button type="button" key={dateIso} disabled={past || status === "booked" || status === "pending" || loading} data-status={status} aria-label={`${date.toLocaleDateString("en-PH", { dateStyle: "long" })}: ${status}`} onClick={() => chooseDate(date)}>
-          <strong>{date.getDate()}</strong><small>{loading ? "Checking" : status === "open" ? "Open" : status === "pending" ? "Pending" : status === "booked" ? "Booked" : "Past"}</small>
+        const dateIso = iso(date); const past = dateIso < todayIso; const availability = availabilityFor(dateIso); const status = past ? "past" : availability.status;
+        return <button type="button" key={dateIso} disabled={past || status !== "open" || loading} data-status={status} aria-label={`${date.toLocaleDateString("en-PH", { dateStyle: "long" })}: ${status}`} onClick={() => chooseDate(date)}>
+          <strong>{date.getDate()}</strong><small>{loading ? "Checking" : status === "open" ? "Open" : status === "pending" ? "Pending" : status === "booked" ? "Booked" : status === "unavailable" ? availability.label : "Past"}</small>
         </button>;
       })}
     </div>
-    <div className="calendar-legend"><span data-status="open">Open · select to book</span><span data-status="pending">Pending</span><span data-status="booked">Booked</span></div>
+    <div className="calendar-legend"><span data-status="open">Open · select to book</span><span data-status="pending">Pending</span><span data-status="booked">Booked</span><span data-status="unavailable">Unavailable reason</span></div>
   </div>{selectedStay ? <BookingModal {...selectedStay} onClose={() => setSelectedStay(null)} /> : null}</>;
 }

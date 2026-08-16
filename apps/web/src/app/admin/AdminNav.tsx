@@ -9,6 +9,7 @@ const navigation = [
   { label: "Booking requests", href: "/admin#booking-requests", id: "booking-requests" },
   { label: "Calendar", href: "/admin#calendar", id: "calendar" },
   { label: "Confirmed stays", href: "/admin/confirmed", id: "confirmed" },
+  { label: "Operations & finance", href: "/admin/operations", id: "operations" },
   { label: "Guest rules", href: "/admin#guest-rules", id: "guest-rules" },
   { label: "Settings", href: "/admin#settings", id: "settings" },
 ] as const;
@@ -22,7 +23,9 @@ function useActiveSection() {
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
   }, [pathname]);
-  return pathname === "/admin/confirmed" ? "confirmed" : hash;
+  if (pathname === "/admin/confirmed") return "confirmed";
+  if (pathname === "/admin/operations") return "operations";
+  return hash;
 }
 
 export function AdminNav({ activeClassName }: { activeClassName: string }) {
@@ -35,9 +38,6 @@ type MobileNavClasses = { button:string; backdrop:string; drawer:string; drawerO
 export function AdminMobileNav({ classes }: { classes: MobileNavClasses }) {
   const [open, setOpen] = useState(false);
   const active = useActiveSection();
-  const pathname = usePathname();
-
-  useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
