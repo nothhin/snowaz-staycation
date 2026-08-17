@@ -13,10 +13,6 @@ export const propertyProfile = {
   email: "merryshien.gepitulan@gmail.com",
   facebookUrl: "https://www.facebook.com/profile.php?id=61592545910229",
   messengerUrl: "https://m.me/61592545910229",
-  pickupReturnLocation: {
-    label: "Jugalbot's Compound",
-    mapsUrl: "https://www.google.com/maps/place/Jugalbot's+Compound/@10.3882117,124.0091215,743m/data=!3m2!1e3!4b1!4m6!3m5!1s0x33a9bd001c22af83:0xc06989cd799998fe!8m2!3d10.3882117!4d124.0091215!16s%2Fg%2F11xvfd6l2s!5m1!1e1!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDgxMi4wIKXMDSoASAFQAw%3D%3D",
-  },
 } as const;
 
 export const galleryImages = [

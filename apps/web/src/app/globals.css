@@ -1303,7 +1303,6 @@ h3 {
 .booking-status-stay strong {
   font-size: 18px;
 }
-.booking-status-location{margin:14px 0;padding:14px 16px;border:1px solid #e6d8ca;border-radius:12px;background:#fffaf4;display:grid;gap:4px}.booking-status-location span{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9a5d36}.booking-status-location strong{font-size:14px;color:#3f352e}.booking-status-location a{width:max-content;color:#9a5d36;font-size:11px;font-weight:800}
 .booking-status-result dl {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
