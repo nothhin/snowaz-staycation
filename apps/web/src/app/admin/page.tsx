@@ -71,10 +71,10 @@ export default async function AdminDashboard({
     <main className={styles.dashboardShell}>
       <aside className={styles.sidebar}>
         <Link className={styles.adminBrand} href="/">
-          <Image src="/images/snowaz/logo.jpg" alt="" width={48} height={48} />
+          <Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation" width={58} height={58} />
           <div>
             <strong>SnowAZ</strong>
-            <small>Property admin</small>
+            <small>Staycation · Condo Rental</small>
           </div>
         </Link>
         <AdminNav activeClassName={styles.activeNav} />

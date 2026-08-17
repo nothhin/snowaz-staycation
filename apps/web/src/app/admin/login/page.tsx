@@ -10,7 +10,7 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
   const { error } = await searchParams;
   return <main className={styles.shell}>
     <section className={styles.card}>
-      <Link href="/" className={styles.brand}><Image src="/images/snowaz/logo.jpg" alt="" width={48} height={48} /><div><strong>SnowAZ Staycation</strong><small>Secure property administration</small></div></Link>
+      <Link href="/" className={styles.brand}><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation" width={58} height={58} /><div><strong>SnowAZ Staycation</strong><small>Staycation · Condo Rental</small></div></Link>
       <div className={styles.copy}><p>STAFF PORTAL</p><h1>Welcome back.</h1><span>Sign in with the staff account issued by the property administrator.</span></div>
       {error === "not-authorized" ? <p className={styles.error}>This account is not an active SnowAZ staff account.</p> : null}
       <LoginForm />
