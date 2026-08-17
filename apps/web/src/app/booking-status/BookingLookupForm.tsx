@@ -3,6 +3,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { lookupBooking, type BookingLookupState } from "./actions";
 import { showError, showSuccess } from "@/lib/sweetalert";
 import { formatStayRange } from "@/lib/date-format";
+import { propertyProfile } from "@/lib/property";
 const initial: BookingLookupState = { status: "idle" };
 const php = new Intl.NumberFormat("en-PH", {
   style: "currency",
@@ -127,6 +128,13 @@ export function BookingLookupForm() {
               {booking.guests} guest{booking.guests === 1 ? "" : "s"} ·{" "}
               {booking.bedroomChoice.replaceAll("_", " ")}
             </small>
+          </div>
+          <div className="booking-status-location" aria-label="Pickup and return location">
+            <span>Pickup & return location</span>
+            <strong>{propertyProfile.pickupReturnLocation.label}</strong>
+            <a href={propertyProfile.pickupReturnLocation.mapsUrl} target="_blank" rel="noreferrer">
+              Open location in Google Maps ↗
+            </a>
           </div>
           <dl>
             <div>

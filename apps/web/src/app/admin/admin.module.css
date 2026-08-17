@@ -542,6 +542,7 @@
   overflow-wrap: anywhere;
   font-size: 11px;
 }
+.bookingLocationCard{margin:16px 0;padding:13px 15px;border:1px solid #e5d8ca;border-radius:12px;background:#fffaf3;display:grid;gap:4px}.bookingLocationCard span{font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9a5d36}.bookingLocationCard strong{font-size:13px;color:#3f352e}.bookingLocationCard a{width:max-content;color:#9a5d36;font-size:10px;font-weight:800}
 .bookingModalActions {
   margin-top: 18px;
   display: flex;
