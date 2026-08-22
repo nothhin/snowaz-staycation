@@ -5,6 +5,8 @@ import { SavedBookingLink } from "./BookingMemory";
 import ScrollReveal from "./ScrollReveal";
 import { amenityHighlights, buildingAmenities, checkoutRules, galleryImages, houseRules, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return <main><ScrollReveal />
     <section className="snow-hero" id="home">
