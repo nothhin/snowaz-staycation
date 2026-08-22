@@ -20,6 +20,9 @@ export const galleryImages = [
   { src: "/images/snowaz/dining-wide.jpg", alt: "SnowAZ dining area with gold lighting and mirror details" },
   { src: "/images/snowaz/dining.jpg", alt: "Dining table prepared for four guests at SnowAZ Staycation" },
   { src: "/images/snowaz/detail.jpg", alt: "Gold and dried-flower interior details at SnowAZ Staycation" },
+  { src: "/images/snowaz/living-room-tv.jpg", alt: "SnowAZ living room TV console with warm accent lighting" },
+  { src: "/images/snowaz/kitchen-wide.jpg", alt: "Fully equipped SnowAZ kitchen with refrigerator and cooking appliances" },
+  { src: "/images/snowaz/kitchen-detail.jpg", alt: "SnowAZ kitchen cabinetry, countertop, and gold pendant lights" },
 ] as const;
 
 export const amenityHighlights = [
