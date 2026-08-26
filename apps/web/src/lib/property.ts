@@ -28,6 +28,8 @@ export const galleryImages = [
 export const galleryVideos = [
   { src: "/images/snowaz/dining-room-tour.mp4", label: "Dining room tour" },
   { src: "/images/snowaz/kitchen-dining-tour.mp4", label: "Kitchen and dining walkthrough" },
+  { src: "/images/snowaz/extended-kitchen-tour.mp4", label: "Extended kitchen tour" },
+  { src: "/images/snowaz/extended-dining-tour.mp4", label: "Extended dining room tour" },
 ] as const;
 
 export const amenityHighlights = [
