@@ -1,10 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 
 const storageKey = "snowaz:last-booking:v1";
-type SavedBooking = { url:string; reference?:string; checkIn?:string; checkOut?:string };
+export type SavedBooking = { url:string; reference?:string; checkIn?:string; checkOut?:string };
+const subscribeToSavedBooking = (onStoreChange: () => void) => {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener("snowaz:booking-saved", onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener("snowaz:booking-saved", onStoreChange);
+  };
+};
+const getSavedBookingSnapshot = () => localStorage.getItem(storageKey) ?? "";
+
+export function useSavedBooking() {
+  const snapshot = useSyncExternalStore(subscribeToSavedBooking, getSavedBookingSnapshot, () => "");
+  return useMemo(() => {
+    try {
+      const booking = JSON.parse(snapshot || "null") as SavedBooking | null;
+      return booking?.url?.startsWith("/deposit/") ? booking : null;
+    } catch {
+      return null;
+    }
+  }, [snapshot]);
+}
 
 export function rememberBooking(booking: SavedBooking) {
   localStorage.setItem(storageKey, JSON.stringify(booking));
@@ -20,13 +41,9 @@ export function RememberBooking({ booking }: { booking: SavedBooking }) {
 }
 
 export function SavedBookingLink() {
-  const [booking, setBooking] = useState<SavedBooking | null>(null);
-  useEffect(() => {
-    const load = () => { try { const value = JSON.parse(localStorage.getItem(storageKey) || "null") as SavedBooking|null; setBooking(value?.url?.startsWith("/deposit/") ? value : null); } catch { setBooking(null); } };
-    load(); window.addEventListener("snowaz:booking-saved", load); return () => window.removeEventListener("snowaz:booking-saved", load);
-  }, []);
-  if (!booking) return <Link href="/booking-status">Look up booking status</Link>;
-  return <><Link href={booking.url}>Continue or check my booking</Link><Link href="/booking-status">Use booking reference instead</Link></>;
+  const booking = useSavedBooking();
+  if (!booking) return <Link href="/booking-status">Check this device for my booking</Link>;
+  return <Link href={booking.url}>Continue or check my booking</Link>;
 }
 
 export function ForgetBookingIfMatches({ url }: { url: string }) {

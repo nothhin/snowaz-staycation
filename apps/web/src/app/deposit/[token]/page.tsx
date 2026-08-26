@@ -17,6 +17,7 @@ import styles from "./deposit.module.css";
 import BookingPriceReceipt from "../../BookingPriceReceipt";
 import { LiveRouteRefresh } from "../../LiveRouteRefresh";
 import { GuestCountEditor } from "./GuestCountEditor";
+import { DeviceStatusAlerts } from "./DeviceStatusAlerts";
 
 export const metadata: Metadata = {
   title: "Booking down payment | SnowAZ Staycation",
@@ -116,6 +117,7 @@ export default async function DepositPage({
             {request.guestCount} guest{request.guestCount === 1 ? "" : "s"}
           </span>
         </div>
+        <DeviceStatusAlerts status={request.depositStatus} />
         {!finished ? (
           <GuestCountEditor
             token={token}
@@ -130,6 +132,8 @@ export default async function DepositPage({
             checkIn={request.checkIn}
             checkOut={request.checkOut}
             guests={request.guestCount}
+            bedroomChoice={request.bedroomChoice as "bedroom_1" | "bedroom_2" | "both_bedrooms"}
+            parkingType={request.parkingType}
           />
         )}
         {finished ? (
@@ -292,8 +296,8 @@ function InvalidDepositLink({ token }: { token: string }) {
         <p className={styles.eyebrow}>Private link unavailable</p>
         <h1>This private link has expired.</h1>
         <p>
-          Use your saved booking reference and contact number to check the
-          current status, or contact SnowAZ before sending money.
+          This device no longer has an active private status link. Contact
+          SnowAZ before sending money or starting another request.
         </p>
         <Link className={styles.helpLink} href="/booking-status">
           Check booking status

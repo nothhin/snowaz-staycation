@@ -3,7 +3,7 @@ import Link from "next/link";
 import AvailabilityCalendar from "./AvailabilityCalendar";
 import { SavedBookingLink } from "./BookingMemory";
 import ScrollReveal from "./ScrollReveal";
-import { amenityHighlights, buildingAmenities, checkoutRules, galleryImages, houseRules, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
+import { amenityHighlights, buildingAmenities, checkoutRules, galleryMedia, houseRules, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export default function Home() {
 
     <section className="snow-section" id="gallery" data-reveal>
       <div className="snow-heading"><p className="eyebrow">A look inside</p><h2>Cozy stay. Warm heart.<br />Happy memories.</h2></div>
-      <div className="snow-gallery">{galleryImages.map((image, index) => <figure key={image.src} className={index === 0 ? "snow-gallery-feature" : ""}><Image src={image.src} alt={image.alt} fill sizes={index === 0 ? "(max-width: 800px) 100vw, 58vw" : "(max-width: 800px) 100vw, 30vw"} /></figure>)}</div>
+      <div className="snow-gallery">{galleryMedia.map((media, index) => <figure key={media.src} className={index === 0 ? "snow-gallery-feature" : ""}>{media.type === "image" ? <Image src={media.src} alt={media.alt} fill sizes={index === 0 ? "(max-width: 800px) 100vw, 58vw" : "(max-width: 800px) 100vw, 30vw"} /> : <video src={media.src} aria-label={media.label} controls muted loop playsInline preload="metadata" />}</figure>)}</div>
     </section>
 
     <section className="snow-section stay-grid" data-reveal>{stayHighlights.map((item, index) => <article key={item.title}><span>0{index + 1}</span><h3>{item.title}</h3><p>{item.copy}</p></article>)}</section>
@@ -60,7 +60,7 @@ export default function Home() {
 
     <section className="location-panel" id="location" data-reveal>
       <div><p className="eyebrow">In the heart of the city</p><h2>Urban convenience,<br />cozy comfort.</h2><address>{propertyProfile.address}</address><ul className="nearby-list">{nearbyPlaces.map((place) => <li key={place}>{place}</li>)}</ul><a className="text-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(propertyProfile.address)}`} target="_blank" rel="noreferrer">Open in Google Maps →</a></div>
-      <div className="location-image"><Image src="/images/snowaz/dining-wide.jpg" alt="Elegant SnowAZ Staycation dining area" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
+      <div className="location-image"><Image src="/images/snowaz/dining-room-updated.jpg" alt="Updated SnowAZ Staycation dining area with gold lighting and mirror details" fill sizes="(max-width: 800px) 100vw, 50vw" /></div>
     </section>
 
     <section className="snow-contact" id="contact" data-reveal><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={180} height={180} /><div><p className="eyebrow">Ready when you are</p><h2>Let’s plan your stay.</h2><p>Perfect for family vacations, group trips, or work-from-home stays. Connect directly with SnowAZ for immediate availability confirmation.</p><div className="contact-links"><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Messenger</a><a href={`tel:${propertyProfile.phoneHref}`}>{propertyProfile.phoneDisplay}</a><a href={`mailto:${propertyProfile.email}`}>{propertyProfile.email}</a><a href={propertyProfile.facebookUrl} target="_blank" rel="noreferrer">Facebook page</a></div></div></section>

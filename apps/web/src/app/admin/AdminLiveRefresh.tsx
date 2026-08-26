@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 export function AdminLiveRefresh() {
   const router = useRouter();
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [lastUpdated, setLastUpdated] = useState(() => new Date());
   useEffect(() => {
     let refreshing = false;
     const refresh = () => {
@@ -16,8 +16,8 @@ export function AdminLiveRefresh() {
       window.setTimeout(() => { refreshing = false; }, 1_000);
     };
     const refreshWhenVisible = () => { if (document.visibilityState === "visible") refresh(); };
-    setLastUpdated(new Date());
-    const interval = window.setInterval(refresh, 5_000);
+    const refreshSilently = () => { if (document.visibilityState === "visible") refresh(); };
+    const interval = window.setInterval(refreshSilently, 60_000);
     window.addEventListener("focus", refresh);
     window.addEventListener("snowaz:admin-changed", refresh);
     document.addEventListener("visibilitychange", refreshWhenVisible);
@@ -28,5 +28,5 @@ export function AdminLiveRefresh() {
       document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
   }, [router]);
-  return <small>{lastUpdated ? `Auto-updated ${lastUpdated.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" })}` : "Auto-refreshing"}</small>;
+  return <small>{`Auto-updated ${lastUpdated.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" })}`}</small>;
 }

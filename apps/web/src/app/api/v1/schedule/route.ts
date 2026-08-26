@@ -21,8 +21,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { error: expiryError } = await supabase.rpc("expire_snowaz_deposit_holds");
-    if (expiryError) throw expiryError;
     const { data, error } = await supabase.rpc("get_snowaz_schedule", {
       range_start: from.data,
       range_end: to.data,

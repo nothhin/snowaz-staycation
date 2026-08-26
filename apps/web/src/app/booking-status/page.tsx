@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { propertyProfile } from "@/lib/property";
-import { BookingLookupForm } from "./BookingLookupForm";
+import { DeviceBookingStatus } from "./DeviceBookingStatus";
 
 export const metadata: Metadata = {
   title: "Check booking status | SnowAZ Staycation",
@@ -12,26 +12,25 @@ export default function BookingStatusPage() {
     <main className="booking-status-shell">
       <header>
         <Link href="/">SnowAZ Staycation</Link>
-        <span>Secure booking lookup</span>
+        <span>Private status on this device</span>
       </header>
       <article className="booking-status-card">
         <div className="booking-status-intro">
-          <p className="eyebrow">Check your request</p>
-          <h1>Your stay, at a glance.</h1>
+          <p className="eyebrow">Your saved booking</p>
+          <h1>No reference number needed.</h1>
           <p>
-            Enter your SnowAZ booking reference and the same contact number used
-            in your request. Your live status, payment summary, and remaining
-            balance will appear below.
+            SnowAZ remembers the private booking link in the browser used to
+            submit your request and opens your live status automatically.
           </p>
           <aside>
-            <strong>Your details stay private</strong>
+            <strong>Saved only on this device</strong>
             <span>
-              We never display your name, email, bank details, or transfer
-              reference on this page.
+              It does not sync to another phone or browser. Clearing browser
+              data or using private browsing removes the saved link.
             </span>
           </aside>
         </div>
-        <BookingLookupForm />
+        <DeviceBookingStatus />
         <footer className="booking-status-footer">
           <a
             href={propertyProfile.messengerUrl}

@@ -18,6 +18,14 @@ const privateLinkLifecyclePath = fileURLToPath(new URL("./0011_private_deposit_l
 const privateLinkLifecycle = readFileSync(privateLinkLifecyclePath, "utf8");
 const messengerVerificationPath = fileURLToPath(new URL("./0012_admin_messenger_deposit_verification.sql", import.meta.url));
 const messengerVerification = readFileSync(messengerVerificationPath, "utf8");
+const expiryRestrictionPath = fileURLToPath(new URL("./0013_restrict_deposit_expiry_rpc.sql", import.meta.url));
+const expiryRestriction = readFileSync(expiryRestrictionPath, "utf8");
+const removePublicLookupPath = fileURLToPath(new URL("./0014_remove_public_booking_status_lookup.sql", import.meta.url));
+const removePublicLookup = readFileSync(removePublicLookupPath, "utf8");
+const lifecycleNotificationsPath = fileURLToPath(new URL("./0015_booking_lifecycle_notifications.sql", import.meta.url));
+const lifecycleNotifications = readFileSync(lifecycleNotificationsPath, "utf8");
+const pauseEmailNotificationsPath = fileURLToPath(new URL("./0016_pause_email_notifications.sql", import.meta.url));
+const pauseEmailNotifications = readFileSync(pauseEmailNotificationsPath, "utf8");
 
 describe("initial database migration", () => {
   it("enforces a single property settings row", () => {
@@ -78,6 +86,13 @@ describe("SnowAZ immediate deposit checkout", () => {
   });
 });
 
+describe("SnowAZ deposit hold expiry", () => {
+  it("runs centrally and cannot be invoked by public clients", () => {
+    expect(expiryRestriction).toContain("cron.schedule");
+    expect(expiryRestriction).toContain("revoke all on function public.expire_snowaz_deposit_holds() from public, anon, authenticated");
+  });
+});
+
 describe("SnowAZ admin booking operations", () => {
   it("restricts status changes to managers and admins", () => {
     expect(adminOperations).toContain("private.snowaz_staff_role() not in ('manager', 'admin')");
@@ -101,6 +116,37 @@ describe("SnowAZ public booking status lookup", () => {
     expect(bookingLookup).toContain("deposit_status text");
     expect(bookingLookup).not.toContain("full_name");
     expect(bookingLookup).not.toContain("deposit_reference");
+  });
+});
+
+describe("SnowAZ device-only booking status", () => {
+  it("removes the legacy reference and phone lookup from public access", () => {
+    expect(removePublicLookup).toContain("revoke all on function public.lookup_snowaz_booking_status(text,text) from public, anon, authenticated");
+  });
+});
+
+describe("SnowAZ booking lifecycle notifications", () => {
+  it("queues email events from booking and deposit changes without duplicates", () => {
+    expect(lifecycleNotifications).toContain("booking_received");
+    expect(lifecycleNotifications).toContain("deposit_submitted");
+    expect(lifecycleNotifications).toContain("booking_confirmed");
+    expect(lifecycleNotifications).toContain("on conflict (dedupe_key)");
+  });
+
+  it("creates a server-side arrival reminder job", () => {
+    expect(lifecycleNotifications).toContain("snowaz-arrival-reminders");
+    expect(lifecycleNotifications).toContain("private.queue_snowaz_arrival_reminders()");
+    expect(lifecycleNotifications).toContain("revoke all on function private.queue_snowaz_arrival_reminders()");
+  });
+});
+
+describe("SnowAZ paused email delivery", () => {
+  it("stops new automatic email records and cancels the pending queue", () => {
+    expect(pauseEmailNotifications).toContain("drop trigger if exists queue_snowaz_booking_lifecycle_notification");
+    expect(pauseEmailNotifications).toContain("jobname='snowaz-arrival-reminders'");
+    expect(pauseEmailNotifications).toContain("channel='email' and status='queued'");
+    expect(pauseEmailNotifications).toContain("status='cancelled'");
+    expect(pauseEmailNotifications).toContain("before insert on public.booking_notifications");
   });
 });
 

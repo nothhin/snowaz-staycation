@@ -269,9 +269,18 @@ h3 {
   background: #dbcdbd;
   border-radius: 4px;
 }
-.snow-gallery img {
+.snow-gallery img,
+.snow-gallery video {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+.snow-gallery img {
   transition: transform 0.45s ease;
+}
+.snow-gallery video {
+  display: block;
+  background: #17120e;
 }
 .snow-gallery figure:hover img {
   transform: scale(1.025);
@@ -1338,7 +1347,8 @@ h3 {
   align-items: center;
   margin-top: 18px;
 }
-.booking-status-result-actions button {
+.booking-status-result-actions button,
+.booking-status-result-actions a {
   padding: 11px 17px;
   border: 1px solid #725a36;
   border-radius: 999px;
@@ -1346,6 +1356,11 @@ h3 {
   color: white;
   font-weight: 700;
   cursor: pointer;
+}
+.booking-status-result-actions a {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 .booking-status-result-actions span,
 .booking-status-result > p {

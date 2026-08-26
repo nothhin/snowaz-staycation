@@ -1775,3 +1775,100 @@
 .operationsPanel{margin-top:28px}.operationsPanel .panelHeading p:last-child,.operationsSidePanel .panelHeading p:last-child{margin:7px 0 0;color:#766d65;font-size:11px;line-height:1.55}.operationsToolbar{margin-top:20px;padding:14px;display:grid;grid-template-columns:minmax(0,2fr) minmax(190px,1fr);gap:12px;border:1px solid #e8ddd1;border-radius:14px;background:#faf6f0}.operationsToolbar label,.operationsBlockForm label,.operationsForm label,.operationsPaymentForm label{display:grid;gap:6px}.operationsToolbar label span,.operationsBlockForm label span,.operationsForm label span,.operationsPaymentForm label span{color:#75685e;font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.operationsToolbar input,.operationsToolbar select,.operationsBlockForm input,.operationsForm input,.operationsForm select,.operationsPaymentForm input,.operationsPaymentForm select{width:100%;min-height:43px;padding:0 12px;border:1px solid #ddd1c4;border-radius:10px;background:#fff;color:#302a25;font:inherit;font-size:11px}.operationsCardGrid{margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.operationsBookingCard{min-width:0;padding:18px;display:grid;gap:14px;border:1px solid #e7dbce;border-radius:16px;background:#fff;box-shadow:0 10px 30px rgba(65,48,35,.05)}.operationsBookingCard header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.operationsBookingCard header div span,.operationsBookingCard header div strong{display:block}.operationsBookingCard header div span{color:#a05d37;font-size:8px;font-weight:800;letter-spacing:.08em}.operationsBookingCard header div strong{margin-top:5px;font-family:var(--font-display),serif;font-size:23px;font-weight:600}.operationsBookingCard header b,.operationsList b{padding:6px 9px;border-radius:999px;background:#eee8e0;color:#6f655c;font-size:7px;text-transform:uppercase}.operationsBookingCard header b[data-status=checked_in],.operationsList b[data-status=sent]{background:#e3f3e9;color:#28734d}.operationsBookingCard header b[data-status=no_show],.operationsList b[data-status=failed]{background:#f6e5e1;color:#984a40}.operationsBookingCard p{margin:0;color:#786e66;font-size:10px}.operationsBookingCard dl{margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.operationsBookingCard dl div,.operationsSummary div{padding:10px;border-radius:10px;background:#faf6f0}.operationsBookingCard dt,.operationsSummary span{color:#83776d;font-size:7px;font-weight:800;text-transform:uppercase}.operationsBookingCard dd{margin:4px 0 0;font-size:10px;font-weight:800}.operationsBookingCard [data-due=true],.operationsSummary [data-due=true]{background:#fff0e9;color:#a45131}.operationsBookingCard>button,.operationsForm>button,.operationsPaymentForm button,.operationsBlockForm>button{min-height:42px;border:0;border-radius:999px;background:#3c342d;color:#fff;font:inherit;font-size:9px;font-weight:800;cursor:pointer}.operationsModal{width:min(1040px,100%)}.operationsSummary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.operationsSummary strong{display:block;margin-top:5px;font-size:18px}.operationsFormsGrid{display:grid;grid-template-columns:1.08fr .92fr;gap:16px}.operationsForm{min-width:0;padding:20px;border:1px solid #e6dacd;border-radius:15px;background:#fff}.operationsForm h3{margin:0;font-family:var(--font-display),serif;font-size:25px;font-weight:600}.operationsForm>small{display:block;margin-top:9px;color:#81776f;font-size:8px;text-align:center}.operationsFieldGrid{margin:17px 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.operationsPaymentForm{margin-top:17px;display:grid;gap:10px}.ledgerList{margin-top:18px;display:grid;gap:8px;max-height:280px;overflow:auto}.ledgerList article{padding:11px;display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #e9ded3;border-radius:10px;background:#faf7f2}.ledgerList article[data-status=reversed]{opacity:.62}.ledgerList article div span,.ledgerList article div strong,.ledgerList article div small{display:block}.ledgerList article div span{font-size:8px;text-transform:capitalize}.ledgerList article div strong{margin-top:3px;font-size:13px}.ledgerList article div small{margin-top:3px;color:#7e746c;font-size:8px}.ledgerList article form{display:grid;grid-template-columns:minmax(120px,1fr) auto;gap:6px}.ledgerList article input{min-width:0;padding:8px;border:1px solid #ddd1c4;border-radius:8px;font-size:9px}.ledgerList article button,.operationsList article button{padding:8px 10px;border:0;border-radius:999px;background:#984a40;color:#fff;font-size:8px;font-weight:800}.operationsLowerGrid{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:24px}.operationsSidePanel{margin-top:0}.operationsBlockForm{margin-top:18px;display:grid;gap:10px}.operationsBlockForm>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}.operationsList{margin-top:18px;display:grid;gap:8px}.operationsList article{padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e8ddd1;border-radius:11px;background:#faf7f2}.operationsList article div strong,.operationsList article div span{display:block}.operationsList article div strong{font-size:10px;text-transform:capitalize}.operationsList article div span{margin-top:4px;color:#81776f;font-size:8px;overflow-wrap:anywhere}.operationsFooter{margin-top:28px;padding:18px 0;display:flex;justify-content:space-between;border-top:1px solid #e4d9cd;color:#786e66;font-size:9px}.operationsFooter a{color:#a05d37;font-weight:800}
 @media(max-width:1000px){.operationsCardGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.operationsFormsGrid,.operationsLowerGrid{grid-template-columns:1fr}}
 @media(max-width:720px){.operationsToolbar,.operationsCardGrid,.operationsFieldGrid{grid-template-columns:1fr}.operationsSummary{grid-template-columns:1fr 1fr}.operationsSummary div:last-child{grid-column:1/-1}.operationsBlockForm>div{grid-template-columns:1fr}.ledgerList article{align-items:stretch;flex-direction:column}.ledgerList article form{width:100%;grid-template-columns:1fr}.operationsFooter{gap:10px;flex-direction:column}.operationsModal{max-height:94svh;border-radius:18px 18px 0 0}.bookingModalBackdrop{align-items:end;padding:0}}
+
+/* Compact phone dashboard: wide metric rows instead of tall portrait cards. */
+@media (max-width: 720px) {
+  .topbar {
+    min-height: 64px;
+    padding: 0 12px;
+  }
+  .mobileMenu {
+    width: 42px;
+    height: 42px;
+  }
+  .adminIdentity {
+    gap: 8px;
+  }
+  .adminIdentity > span {
+    width: 38px;
+    height: 38px;
+  }
+  .adminIdentity form button {
+    min-height: 38px;
+    padding: 0 12px;
+  }
+  .content {
+    padding: 24px 14px 64px;
+    overflow-x: clip;
+  }
+  .welcome {
+    gap: 14px;
+    padding-top: 4px;
+  }
+  .welcome h1 {
+    font-size: 44px;
+  }
+  .welcome > div:first-child > p:last-child {
+    margin-bottom: 0;
+    font-size: 12px;
+  }
+  .liveBadge {
+    padding: 12px 14px;
+  }
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 24px 0 20px;
+  }
+  .metricsGrid article {
+    min-height: 94px;
+    padding: 16px 18px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "metric-label metric-value"
+      "metric-note metric-value";
+    align-items: center;
+    column-gap: 18px;
+    row-gap: 3px;
+    border-radius: 16px;
+  }
+  .metricsGrid article > span {
+    grid-area: metric-label;
+    align-self: end;
+    line-height: 1.3;
+  }
+  .metricsGrid article > strong {
+    grid-area: metric-value;
+    min-width: 54px;
+    font-size: 42px;
+    line-height: 1;
+    text-align: right;
+  }
+  .metricsGrid article > small {
+    grid-area: metric-note;
+    align-self: start;
+    line-height: 1.35;
+  }
+  .panel,
+  .ratesSection,
+  .inventorySection {
+    padding: 18px;
+  }
+  .panelHeading,
+  .sectionHeading {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .adminIdentity div {
+    display: none;
+  }
+  .metricsGrid article {
+    min-height: 88px;
+    padding: 14px 16px;
+  }
+  .metricsGrid article > strong {
+    font-size: 38px;
+  }
+}

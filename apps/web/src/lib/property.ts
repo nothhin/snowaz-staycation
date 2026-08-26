@@ -15,14 +15,16 @@ export const propertyProfile = {
   messengerUrl: "https://m.me/61592545910229",
 } as const;
 
-export const galleryImages = [
-  { src: "/images/snowaz/hero.jpg", alt: "Warm and cozy SnowAZ Staycation living and dining area" },
-  { src: "/images/snowaz/dining-wide.jpg", alt: "SnowAZ dining area with gold lighting and mirror details" },
-  { src: "/images/snowaz/dining.jpg", alt: "Dining table prepared for four guests at SnowAZ Staycation" },
-  { src: "/images/snowaz/detail.jpg", alt: "Gold and dried-flower interior details at SnowAZ Staycation" },
-  { src: "/images/snowaz/living-room-tv.jpg", alt: "SnowAZ living room TV console with warm accent lighting" },
-  { src: "/images/snowaz/kitchen-wide.jpg", alt: "Fully equipped SnowAZ kitchen with refrigerator and cooking appliances" },
-  { src: "/images/snowaz/kitchen-detail.jpg", alt: "SnowAZ kitchen cabinetry, countertop, and gold pendant lights" },
+export const galleryMedia = [
+  { type: "image", src: "/images/snowaz/hero.jpg", alt: "Warm and cozy SnowAZ Staycation living and dining area" },
+  { type: "video", src: "/images/snowaz/dining-room-tour.mp4", label: "A short tour of the refreshed SnowAZ dining room" },
+  { type: "image", src: "/images/snowaz/detail.jpg", alt: "Gold and dried-flower interior details at SnowAZ Staycation" },
+  { type: "image", src: "/images/snowaz/living-room-tv.jpg", alt: "SnowAZ living room TV console with warm accent lighting" },
+  { type: "image", src: "/images/snowaz/kitchen-wide.jpg", alt: "Fully equipped SnowAZ kitchen with refrigerator and cooking appliances" },
+  { type: "image", src: "/images/snowaz/kitchen-detail.jpg", alt: "SnowAZ kitchen cabinetry, countertop, and gold pendant lights" },
+  { type: "image", src: "/images/snowaz/kitchen-updated-wide.jpg", alt: "Updated SnowAZ kitchen with refrigerator, appliances, and blue accent lighting" },
+  { type: "image", src: "/images/snowaz/kitchen-updated-detail.jpg", alt: "Updated SnowAZ kitchen cabinetry, countertop, and gold pendant lights" },
+  { type: "video", src: "/images/snowaz/kitchen-dining-tour.mp4", label: "A walkthrough from the SnowAZ kitchen to the dining room" },
 ] as const;
 
 export const amenityHighlights = [

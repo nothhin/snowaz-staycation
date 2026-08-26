@@ -26,7 +26,7 @@ export function GuestCountEditor({
   const assignedBedroom = (value: number) =>
     value <= 2 ? "bedroom_1" : value <= 4 ? "bedroom_2" : "both_bedrooms";
   const [guests, setGuests] = useState(initialGuests);
-  const [bedroom, setBedroom] = useState(assignedBedroom(initialGuests));
+  const [bedroom, setBedroom] = useState(initialBedroom);
   const [parkingType, setParkingType] = useState(initialParking);
   const [state, action, pending] = useActionState(
     updatePendingGuestCount,

@@ -6,7 +6,6 @@ import { DepositControls } from "./DepositControls";
 import styles from "./admin.module.css";
 import { formatStayRange } from "@/lib/date-format";
 import { AdminPriceReceipt } from "./AdminPriceReceipt";
-import { propertyProfile } from "@/lib/property";
 
 export type AdminEnquiry = {
   id:string; fullName:string; email:string; phone:string; preferredContact:string;

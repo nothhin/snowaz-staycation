@@ -1,26 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 const DISMISSED_KEY = "snowaz-browser-prompt-v2";
 const IN_APP_BROWSER = /FBAN|FBAV|Instagram|Messenger|Line\/|; wv\)|WebView/i;
+const subscribe = () => () => {};
 
 export default function BrowserViewPrompt() {
-  const [visible, setVisible] = useState(false);
-  const [android, setAndroid] = useState(false);
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
+  const [dismissed, setDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    const userAgent = navigator.userAgent;
-    setAndroid(/Android/i.test(userAgent));
-    setVisible(IN_APP_BROWSER.test(userAgent) && sessionStorage.getItem(DISMISSED_KEY) !== "1");
-  }, []);
+  const userAgent = mounted ? navigator.userAgent : "";
+  const android = /Android/i.test(userAgent);
+  const visible = mounted && !dismissed && IN_APP_BROWSER.test(userAgent) && sessionStorage.getItem(DISMISSED_KEY) !== "1";
 
   if (!visible) return null;
 
   const dismiss = () => {
     sessionStorage.setItem(DISMISSED_KEY, "1");
-    setVisible(false);
+    setDismissed(true);
   };
 
   const openExternalBrowser = async () => {

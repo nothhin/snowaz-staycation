@@ -73,7 +73,7 @@ begin
 end;
 $$;
 revoke all on function public.expire_snowaz_deposit_holds() from public;
-grant execute on function public.expire_snowaz_deposit_holds() to anon, authenticated;
+revoke all on function public.expire_snowaz_deposit_holds() from anon, authenticated;
 
 create or replace function public.get_snowaz_admin_dashboard()
 returns jsonb language plpgsql stable security definer set search_path = '' as $$

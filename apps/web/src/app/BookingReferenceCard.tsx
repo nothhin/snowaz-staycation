@@ -6,7 +6,7 @@ import { showSuccess } from "@/lib/sweetalert";
 export function BookingReferenceCard({ reference }: { reference: string }) {
   const [copied, setCopied] = useState(false);
   return <section className="booking-reference-card" aria-label="Save your booking reference">
-    <div><small>Save your booking reference</small><strong>{reference}</strong><p>Take a screenshot or copy this reference. You will need it with your contact number to check the booking from another device.</p></div>
+    <div><small>Optional staff reference</small><strong>{reference}</strong><p>Your status is already saved on this device. Keep this reference only in case SnowAZ staff asks for it while assisting you.</p></div>
     <button type="button" onClick={async () => { await navigator.clipboard.writeText(reference); setCopied(true); void showSuccess("Booking reference copied. Keep it somewhere safe."); }}>{copied ? "Reference copied" : "Copy reference"}</button>
   </section>;
 }

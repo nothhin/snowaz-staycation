@@ -286,3 +286,21 @@
   }
 }
 .guestEditor{display:grid;gap:1rem;padding:1.25rem;border:1px solid rgba(31,91,67,.2);border-radius:1rem;background:#f6fbf8}.guestEditor h2,.guestEditor p{margin:.2rem 0}.guestEditor form{display:grid;grid-template-columns:1fr 1fr auto;gap:.75rem;align-items:end}.guestEditor label{display:grid;gap:.35rem}.guestEditor select{min-height:46px;border:1px solid #c8d8cf;border-radius:.65rem;background:#fff;padding:.65rem}.guestEditor button{min-height:46px}@media(max-width:640px){.guestEditor form{grid-template-columns:1fr}.guestEditor button{width:100%}}
+.card :global(.device-status-alerts) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(145, 105, 39, 0.2);
+  border-radius: 18px;
+  background: #fffaf1;
+}
+.card :global(.device-status-alerts div) { display: grid; gap: .25rem; }
+.card :global(.device-status-alerts span) { color: #6f675d; font-size: .9rem; line-height: 1.45; }
+.card :global(.device-status-alerts button) { flex: none; border: 0; border-radius: 999px; padding: .75rem 1rem; background: #3c312a; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+@media (max-width: 560px) {
+  .card :global(.device-status-alerts) { align-items: stretch; flex-direction: column; }
+  .card :global(.device-status-alerts button) { width: 100%; }
+}
