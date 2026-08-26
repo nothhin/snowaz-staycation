@@ -3,7 +3,7 @@ import Link from "next/link";
 import AvailabilityCalendar from "./AvailabilityCalendar";
 import { SavedBookingLink } from "./BookingMemory";
 import ScrollReveal from "./ScrollReveal";
-import { amenityHighlights, buildingAmenities, checkoutRules, galleryMedia, houseRules, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
+import { amenityHighlights, buildingAmenities, checkoutRules, galleryImages, galleryVideos, houseRules, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,11 @@ export default function Home() {
 
     <section className="snow-section" id="gallery" data-reveal>
       <div className="snow-heading"><p className="eyebrow">A look inside</p><h2>Cozy stay. Warm heart.<br />Happy memories.</h2></div>
-      <div className="snow-gallery">{galleryMedia.map((media, index) => <figure key={media.src} className={index === 0 ? "snow-gallery-feature" : ""}>{media.type === "image" ? <Image src={media.src} alt={media.alt} fill sizes={index === 0 ? "(max-width: 800px) 100vw, 58vw" : "(max-width: 800px) 100vw, 30vw"} /> : <video src={media.src} aria-label={media.label} controls muted loop playsInline preload="metadata" />}</figure>)}</div>
+      <div className="snow-gallery">{galleryImages.map((image, index) => <figure key={image.src} className={index === 0 ? "snow-gallery-feature" : ""}><Image src={image.src} alt={image.alt} fill sizes={index === 0 ? "(max-width: 800px) 100vw, 58vw" : "(max-width: 800px) 100vw, 30vw"} /></figure>)}</div>
+      <div className="snow-video-showcase" aria-label="SnowAZ video tours">
+        <div className="snow-video-heading"><p className="eyebrow">Watch the space</p><h3>Take a closer look.</h3></div>
+        <div className="snow-video-grid">{galleryVideos.map((video) => <figure key={video.src}><video src={video.src} aria-label={video.label} autoPlay controls muted loop playsInline preload="metadata" /><figcaption>{video.label}</figcaption></figure>)}</div>
+      </div>
     </section>
 
     <section className="snow-section stay-grid" data-reveal>{stayHighlights.map((item, index) => <article key={item.title}><span>0{index + 1}</span><h3>{item.title}</h3><p>{item.copy}</p></article>)}</section>
