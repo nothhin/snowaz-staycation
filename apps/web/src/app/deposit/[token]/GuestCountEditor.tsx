@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { validBedroomChoices } from "@casa-marga/shared/booking";
 import BookingPriceReceipt from "../../BookingPriceReceipt";
 import { showError, showSuccess } from "@/lib/sweetalert";
 import { updatePendingGuestCount, type GuestCountState } from "./actions";
@@ -15,6 +16,7 @@ export function GuestCountEditor({
   initialGuests,
   initialBedroom,
   initialParking,
+  initialExcessCheckoutHours,
 }: {
   token: string;
   checkIn: string;
@@ -22,12 +24,18 @@ export function GuestCountEditor({
   initialGuests: number;
   initialBedroom: string;
   initialParking: "none" | "car" | "motorcycle";
+  initialExcessCheckoutHours: number;
 }) {
-  const assignedBedroom = (value: number) =>
-    value <= 2 ? "bedroom_1" : value <= 4 ? "bedroom_2" : "both_bedrooms";
   const [guests, setGuests] = useState(initialGuests);
-  const [bedroom, setBedroom] = useState(initialBedroom);
+  const [bedroom, setBedroom] = useState<
+    "bedroom_1" | "bedroom_2" | "both_bedrooms"
+  >(
+    initialBedroom === "bedroom_2" || initialBedroom === "both_bedrooms"
+      ? initialBedroom
+      : "bedroom_1",
+  );
   const [parkingType, setParkingType] = useState(initialParking);
+  const [excessCheckoutHours, setExcessCheckoutHours] = useState(initialExcessCheckoutHours);
   const [state, action, pending] = useActionState(
     updatePendingGuestCount,
     initialState,
@@ -38,8 +46,15 @@ export function GuestCountEditor({
   }, [state]);
   const chooseGuests = (value: number) => {
     setGuests(value);
-    setBedroom(assignedBedroom(value));
+    const choices = validBedroomChoices(value);
+    if (!(choices as readonly string[]).includes(bedroom)) {
+      setBedroom(choices[0]);
+    }
   };
+  const availableBedrooms =
+    guests > 6 ? (["both_bedrooms"] as const) : validBedroomChoices(guests);
+  const guestOptions = [1, 2, 3, 4, 5, 6];
+  if (initialGuests > 6) guestOptions.push(initialGuests);
   return (
     <section className={styles.guestEditor}>
       <div>
@@ -49,6 +64,16 @@ export function GuestCountEditor({
       </div>
       <form action={action}>
         <input type="hidden" name="token" value={token} />
+        <label>
+          <span>Excess checkout time (optional)</span>
+          <select name="excessCheckoutHours" value={excessCheckoutHours} onChange={(event) => setExcessCheckoutHours(Number(event.target.value))}>
+            <option value="0">No excess time</option>
+            <option value="1">1 hour — ₱200</option>
+            <option value="2">2 hours — ₱400</option>
+            <option value="3">3 hours — ₱600</option>
+          </select>
+          <small>Regular checkout is 11:00 AM. More than 3 hours may require a half-day or additional night, subject to availability.</small>
+        </label>
         <label>
           <span>Overnight parking</span>
           <select
@@ -70,7 +95,7 @@ export function GuestCountEditor({
             value={guests}
             onChange={(event) => chooseGuests(Number(event.target.value))}
           >
-            {Array.from({ length: 8 }, (_, index) => index + 1).map((count) => (
+            {guestOptions.map((count) => (
               <option key={count} value={count}>
                 {count} guest{count === 1 ? "" : "s"}
               </option>
@@ -78,17 +103,25 @@ export function GuestCountEditor({
           </select>
         </label>
         <label>
-          <span>Assigned bedroom</span>
-          <select value={bedroom} disabled>
-            <option value={bedroom}>
-              {bedroom === "bedroom_1"
-                ? "Bedroom 1"
-                : bedroom === "bedroom_2"
-                  ? "Bedroom 2"
-                  : "Both bedrooms"}
-            </option>
+          <span>Bedroom selection</span>
+          <select
+            name="bedroom"
+            value={bedroom}
+            onChange={(event) =>
+              setBedroom(event.target.value as typeof bedroom)
+            }
+          >
+            {availableBedrooms.map((choice) => (
+              <option key={choice} value={choice}>
+                {choice === "bedroom_1"
+                  ? "Bedroom 1"
+                  : choice === "bedroom_2"
+                    ? "Bedroom 2"
+                    : "Both bedrooms"}
+              </option>
+            ))}
           </select>
-          <input type="hidden" name="bedroom" value={bedroom} />
+          <small>Two guests may choose Bedroom 1 or Bedroom 2.</small>
         </label>
         <button disabled={pending}>
           {pending ? "Updating…" : "Update guests and total"}
@@ -98,8 +131,9 @@ export function GuestCountEditor({
         checkIn={checkIn}
         checkOut={checkOut}
         guests={guests}
-        bedroomChoice={bedroom as "bedroom_1" | "bedroom_2" | "both_bedrooms"}
+        bedroomChoice={bedroom}
         parkingType={parkingType}
+        excessCheckoutHours={excessCheckoutHours}
       />
       <small>
         Changes are allowed only before payment details or a receipt are

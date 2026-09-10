@@ -12,8 +12,9 @@ export function AdminPriceReceipt({ booking }: { booking:AdminEnquiry }) {
     <div><dt>Base nightly rate</dt><dd>{php.format(booking.baseNightlyRateMinor/100)}</dd></div>
     {booking.additionalGuestCount>0?<div><dt>Additional pax<br/><small>{booking.additionalGuestCount} × ₱300 × {booking.stayNights} night{booking.stayNights===1?"":"s"}</small></dt><dd>+{php.format(booking.additionalGuestChargeMinor/100)}</dd></div>:null}
     {(booking.parkingChargeMinor??0)>0?<div><dt>{booking.parkingType==="car"?"Car":"Motorcycle"} parking<br/><small>{php.format((booking.parkingNightlyRateMinor??0)/100)} × {booking.stayNights} night{booking.stayNights===1?"":"s"}</small></dt><dd>+{php.format((booking.parkingChargeMinor??0)/100)}</dd></div>:null}
+    {(booking.excessCheckoutChargeMinor??0)>0?<div><dt>Excess checkout time<br/><small>{booking.excessCheckoutHours} hour{booking.excessCheckoutHours===1?"":"s"} × ₱200</small></dt><dd>+{php.format((booking.excessCheckoutChargeMinor??0)/100)}</dd></div>:null}
     <div><dt>Total accommodation</dt><dd>{php.format(booking.totalMinor/100)}</dd></div>
-    <div><dt>Down payment</dt><dd>−{php.format(booking.depositAmountMinor/100)}</dd></div>
+    <div><dt>Refundable security deposit</dt><dd>{php.format(booking.depositAmountMinor/100)}</dd></div>
     <div><dt>Balance paid</dt><dd>−{php.format(booking.balancePaidMinor/100)}</dd></div>
     <div className={styles.adminReceiptBalance}><dt>Remaining balance</dt><dd>{php.format(booking.remainingBalanceMinor/100)}</dd></div>
   </dl></section>;

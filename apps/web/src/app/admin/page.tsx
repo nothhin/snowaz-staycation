@@ -9,6 +9,7 @@ import { AdminMobileNav, AdminNav } from "./AdminNav";
 import { AdminLiveRefresh } from "./AdminLiveRefresh";
 import { AdminFlashAlert } from "./AdminFlashAlert";
 import { AdminCalendar } from "./AdminCalendar";
+import { ManualBookingForm } from "./ManualBookingForm";
 import {
   BookingRequestsPanel,
   type AdminEnquiry,
@@ -154,6 +155,7 @@ export default async function AdminDashboard({
         Open confirmed stays <span>{confirmed.length}</span>
       </Link>
       <BookingRequestsPanel enquiries={enquiries} canManage={canManage} />
+          {canManage ? <ManualBookingForm /> : null}
           <AdminCalendar bookings={enquiries} />
           <section
             id="guest-rules"
@@ -164,16 +166,16 @@ export default async function AdminDashboard({
               <p className={styles.eyebrow}>Stay rates</p>
               <h2>1BR or 2BR pricing</h2>
               <p>
-                1BR is ₱1,800/night for up to two guests. 2BR is ₱2,300/night
-                for up to four guests, plus ₱300 per additional guest/night.
+                One bedroom starts at ₱1,800/night. Both bedrooms are ₱2,300/night
+                for 4–5 guests, plus ₱300 for the sixth guest/night.
               </p>
-              <span>Maximum 8 guests</span>
+              <span>Maximum 6 guests</span>
             </article>
             <article className={styles.compactPanel}>
               <p className={styles.eyebrow}>Deposit policy</p>
-              <h2>₱1,000 down payment</h2>
+              <h2>₱1,000 refundable security deposit</h2>
               <p>
-                Verify every payment in MariBank. The down payment is deducted
+                Verify every payment in MariBank. The security deposit is separate
                 from the guest’s total accommodation payment.
               </p>
               <span>Manual bank verification</span>

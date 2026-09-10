@@ -8,6 +8,7 @@ export const bedroomChoiceSchema = z.enum([
   "both_bedrooms",
 ]);
 export const parkingTypeSchema = z.enum(["none", "car", "motorcycle"]);
+export const excessCheckoutHoursSchema = z.coerce.number().int().min(0).max(3).default(0);
 
 function isCalendarDate(value: string) {
   if (!ISO_DATE_PATTERN.test(value)) return false;
@@ -37,7 +38,7 @@ export const staySchema = z
   });
 
 export const availabilitySearchSchema = staySchema.extend({
-  guests: z.coerce.number().int().min(1).max(8),
+  guests: z.coerce.number().int().min(1).max(6),
 });
 
 export const guestDetailsSchema = z.object({
@@ -48,7 +49,7 @@ export const guestDetailsSchema = z.object({
 
 export const reservationRequestSchema = staySchema.extend({
   roomTypeId: z.string().uuid(),
-  guests: z.coerce.number().int().min(1).max(8),
+  guests: z.coerce.number().int().min(1).max(6),
   guest: guestDetailsSchema,
   specialRequests: z.string().trim().max(1_000).optional().or(z.literal("")),
   consent: z.literal(true, {
@@ -61,9 +62,10 @@ export const reservationRequestSchema = staySchema.extend({
 export const bookingEnquirySchema = staySchema
   .extend({
     roomTypeId: z.string().uuid().optional().or(z.literal("")),
-    guests: z.coerce.number().int().min(1).max(8),
+    guests: z.coerce.number().int().min(1).max(6),
     bedroomChoice: bedroomChoiceSchema,
     parkingType: parkingTypeSchema.default("none"),
+    excessCheckoutHours: excessCheckoutHoursSchema,
     fullName: z.string().trim().min(2).max(120),
     email: z.union([
       z.literal(""),
@@ -81,10 +83,10 @@ export const bookingEnquirySchema = staySchema
   .refine(
     ({ guests, bedroomChoice }) =>
       guests < 1 ||
-      guests > 8 ||
-      bedroomChoice === automaticBedroomChoice(guests),
+      guests > 6 ||
+      isValidBedroomChoice(guests, bedroomChoice),
     {
-      message: "The bedroom is assigned automatically from the guest count.",
+      message: "Choose a bedroom setup that fits the number of guests.",
       path: ["bedroomChoice"],
     },
   );
@@ -117,47 +119,76 @@ export function calculateStayTotalMinor(
   return total;
 }
 
-export function calculateSnowazNightlyRateMinor(guests: number) {
-  if (!Number.isSafeInteger(guests) || guests < 1 || guests > 8) {
-    throw new RangeError("Guest count must be a whole number from 1 to 8.");
+export function validBedroomChoices(guests: number) {
+  if (!Number.isSafeInteger(guests) || guests < 1 || guests > 6) {
+    throw new RangeError("Guest count must be a whole number from 1 to 6.");
   }
-
-  if (guests <= 2) return 180_000;
-  return 230_000 + Math.max(0, guests - 4) * 30_000;
+  if (guests === 1) return ["bedroom_1"] as const;
+  if (guests === 2) return ["bedroom_1", "bedroom_2"] as const;
+  if (guests === 3) return ["bedroom_2"] as const;
+  return ["both_bedrooms"] as const;
 }
 
-export function automaticBedroomChoice(guests: number) {
-  if (!Number.isSafeInteger(guests) || guests < 1 || guests > 8)
-    throw new RangeError("Guest count must be a whole number from 1 to 8.");
-  return guests <= 2
-    ? ("bedroom_1" as const)
-    : guests <= 4
-      ? ("bedroom_2" as const)
-      : ("both_bedrooms" as const);
+export function isValidBedroomChoice(
+  guests: number,
+  bedroomChoice: z.infer<typeof bedroomChoiceSchema>,
+) {
+  return (validBedroomChoices(guests) as readonly string[]).includes(
+    bedroomChoice,
+  );
+}
+
+export function calculateSnowazNightlyRateMinor(
+  guests: number,
+  bedroomChoice: z.infer<typeof bedroomChoiceSchema>,
+) {
+  if (!isValidBedroomChoice(guests, bedroomChoice)) {
+    throw new RangeError("The bedroom setup does not fit the guest count.");
+  }
+  if (bedroomChoice === "bedroom_1") return 180_000;
+  if (bedroomChoice === "bedroom_2") {
+    return 180_000 + Math.max(0, guests - 2) * 30_000;
+  }
+  return 230_000 + Math.max(0, guests - 5) * 30_000;
 }
 
 export function calculateSnowazBookingReceipt(
   checkIn: string,
   checkOut: string,
   guests: number,
+  bedroomChoice: z.infer<typeof bedroomChoiceSchema>,
   parkingType: "none" | "car" | "motorcycle" = "none",
+  excessCheckoutHours = 0,
 ) {
+  if (!Number.isSafeInteger(excessCheckoutHours) || excessCheckoutHours < 0 || excessCheckoutHours > 3) {
+    throw new RangeError("Excess checkout time must be between 0 and 3 hours.");
+  }
   const nights = stayNights(checkIn, checkOut);
-  const nightlyRateMinor = calculateSnowazNightlyRateMinor(guests);
-  const baseNightlyRateMinor = guests <= 2 ? 180_000 : 230_000;
+  const nightlyRateMinor = calculateSnowazNightlyRateMinor(
+    guests,
+    bedroomChoice,
+  );
+  const baseNightlyRateMinor =
+    bedroomChoice === "both_bedrooms" ? 230_000 : 180_000;
   const parkingNightlyRateMinor =
     parkingType === "car" ? 35_000 : parkingType === "motorcycle" ? 15_000 : 0;
   const parkingChargeMinor = parkingNightlyRateMinor * nights;
+  const excessCheckoutChargeMinor = excessCheckoutHours * 20_000;
   const totalMinor =
-    calculateStayTotalMinor(nightlyRateMinor, nights) + parkingChargeMinor;
-  const downPaymentMinor = Math.min(100_000, totalMinor);
-  const additionalGuests = Math.max(0, guests - 4);
+    calculateStayTotalMinor(nightlyRateMinor, nights) + parkingChargeMinor + excessCheckoutChargeMinor;
+  const securityDepositMinor = 100_000;
+  const additionalGuests =
+    bedroomChoice === "bedroom_2"
+      ? Math.max(0, guests - 2)
+      : bedroomChoice === "both_bedrooms"
+        ? Math.max(0, guests - 5)
+        : 0;
   const additionalGuestChargeMinor = additionalGuests * 30_000 * nights;
 
   return {
     nights,
     guests,
-    bedrooms: guests <= 2 ? 1 : 2,
+    bedrooms: bedroomChoice === "both_bedrooms" ? 2 : 1,
     baseNightlyRateMinor,
     nightlyRateMinor,
     additionalGuests,
@@ -165,9 +196,11 @@ export function calculateSnowazBookingReceipt(
     parkingType,
     parkingNightlyRateMinor,
     parkingChargeMinor,
+    excessCheckoutHours,
+    excessCheckoutChargeMinor,
     totalMinor,
-    downPaymentMinor,
-    remainingBalanceMinor: totalMinor - downPaymentMinor,
+    securityDepositMinor,
+    remainingBalanceMinor: totalMinor,
   } as const;
 }
 

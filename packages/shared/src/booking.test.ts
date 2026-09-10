@@ -64,7 +64,7 @@ describe("booking enquiries", () => {
   };
   it("allows an optional email when the required phone number is provided", () =>
     expect(bookingEnquirySchema.safeParse(request).success).toBe(true));
-  it("automatically assigns Bedroom 1 for up to two guests", () => {
+  it("lets two guests choose Bedroom 1 or Bedroom 2", () => {
     expect(
       bookingEnquirySchema.safeParse({ ...request, bedroomChoice: "bedroom_1" })
         .success,
@@ -72,17 +72,17 @@ describe("booking enquiries", () => {
     expect(
       bookingEnquirySchema.safeParse({ ...request, bedroomChoice: "bedroom_2" })
         .success,
-    ).toBe(false);
+    ).toBe(true);
   });
-  it("accepts up to eight guests when both bedrooms are selected", () =>
+  it("accepts up to six guests when both bedrooms are selected", () =>
     expect(
       bookingEnquirySchema.safeParse({
         ...request,
-        guests: "8",
+        guests: "6",
         bedroomChoice: "both_bedrooms",
       }).success,
     ).toBe(true));
-  it("automatically assigns Bedroom 2 for three or four guests", () =>
+  it("uses Bedroom 2 for three guests", () =>
     expect(
       bookingEnquirySchema.safeParse({
         ...request,
@@ -90,17 +90,17 @@ describe("booking enquiries", () => {
         bedroomChoice: "bedroom_2",
       }).success,
     ).toBe(true));
-  it("requires both bedrooms above four guests", () =>
+  it("requires both bedrooms from four guests", () =>
     expect(
       bookingEnquirySchema.safeParse({
         ...request,
-        guests: "5",
+        guests: "4",
         bedroomChoice: "bedroom_2",
       }).success,
     ).toBe(false));
-  it("rejects more than eight guests", () =>
+  it("rejects more than six guests", () =>
     expect(
-      bookingEnquirySchema.safeParse({ ...request, guests: "9" }).success,
+      bookingEnquirySchema.safeParse({ ...request, guests: "7" }).success,
     ).toBe(false));
   it("does not accept an alternate preferred contact method", () =>
     expect(
@@ -111,20 +111,27 @@ describe("booking enquiries", () => {
 
 describe("money calculations", () => {
   it("prices one bedroom, two bedrooms, and additional guests", () => {
-    expect(calculateSnowazNightlyRateMinor(2)).toBe(180_000);
-    expect(calculateSnowazNightlyRateMinor(3)).toBe(230_000);
-    expect(calculateSnowazNightlyRateMinor(4)).toBe(230_000);
-    expect(calculateSnowazNightlyRateMinor(5)).toBe(260_000);
-    expect(calculateSnowazNightlyRateMinor(8)).toBe(350_000);
-    expect(() => calculateSnowazNightlyRateMinor(9)).toThrow(RangeError);
+    expect(calculateSnowazNightlyRateMinor(1, "bedroom_1")).toBe(180_000);
+    expect(calculateSnowazNightlyRateMinor(2, "bedroom_1")).toBe(180_000);
+    expect(calculateSnowazNightlyRateMinor(2, "bedroom_2")).toBe(180_000);
+    expect(calculateSnowazNightlyRateMinor(3, "bedroom_2")).toBe(210_000);
+    expect(calculateSnowazNightlyRateMinor(4, "both_bedrooms")).toBe(230_000);
+    expect(calculateSnowazNightlyRateMinor(5, "both_bedrooms")).toBe(230_000);
+    expect(calculateSnowazNightlyRateMinor(6, "both_bedrooms")).toBe(260_000);
+    expect(() => calculateSnowazNightlyRateMinor(3, "bedroom_1")).toThrow(RangeError);
   });
 
-  it("builds a receipt with the required down payment and remaining balance", () => {
+  it("keeps the refundable security deposit separate from accommodation", () => {
     expect(
-      calculateSnowazBookingReceipt("2026-09-01", "2026-09-04", 5),
+      calculateSnowazBookingReceipt(
+        "2026-09-01",
+        "2026-09-04",
+        6,
+        "both_bedrooms",
+      ),
     ).toEqual({
       nights: 3,
-      guests: 5,
+      guests: 6,
       bedrooms: 2,
       baseNightlyRateMinor: 230_000,
       nightlyRateMinor: 260_000,
@@ -133,14 +140,16 @@ describe("money calculations", () => {
       parkingType: "none",
       parkingNightlyRateMinor: 0,
       parkingChargeMinor: 0,
+      excessCheckoutHours: 0,
+      excessCheckoutChargeMinor: 0,
       totalMinor: 780_000,
-      downPaymentMinor: 100_000,
-      remainingBalanceMinor: 680_000,
+      securityDepositMinor: 100_000,
+      remainingBalanceMinor: 780_000,
     });
   });
   it("adds optional parking per night", () => {
-    expect(calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 2, "car").parkingChargeMinor).toBe(70_000);
-    expect(calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 2, "motorcycle").parkingChargeMinor).toBe(30_000);
+    expect(calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 2, "bedroom_1", "car").parkingChargeMinor).toBe(70_000);
+    expect(calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 2, "bedroom_2", "motorcycle").parkingChargeMinor).toBe(30_000);
   });
   it("calculates totals only with integer minor units", () => {
     expect(calculateStayTotalMinor(250_000, 3)).toBe(750_000);

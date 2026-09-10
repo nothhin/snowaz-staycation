@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { isValidBedroomChoice } from "@casa-marga/shared/booking";
 import {
   hashDepositToken,
   isValidDepositToken,
@@ -20,24 +21,18 @@ export async function updatePendingGuestCount(
   const parsed = z
     .object({
       token: z.string().refine(isValidDepositToken),
-      guests: z.coerce.number().int().min(1).max(8),
+      guests: z.coerce.number().int().min(1).max(6),
       bedroom: z.enum(["bedroom_1", "bedroom_2", "both_bedrooms"]),
       parkingType: z.enum(["none", "car", "motorcycle"]),
+      excessCheckoutHours: z.coerce.number().int().min(0).max(3),
     })
-    .refine(
-      (value) =>
-        value.bedroom ===
-        (value.guests <= 2
-          ? "bedroom_1"
-          : value.guests <= 4
-            ? "bedroom_2"
-            : "both_bedrooms"),
-    )
+    .refine((value) => isValidBedroomChoice(value.guests, value.bedroom))
     .safeParse({
       token: formData.get("token"),
       guests: formData.get("guests"),
       bedroom: formData.get("bedroom"),
       parkingType: formData.get("parkingType"),
+      excessCheckoutHours: formData.get("excessCheckoutHours") ?? "0",
     });
   if (!parsed.success)
     return {
@@ -54,6 +49,7 @@ export async function updatePendingGuestCount(
       guests: parsed.data.guests,
       bedroom_selection: parsed.data.bedroom,
       parking_selection: parsed.data.parkingType,
+      excess_hours: parsed.data.excessCheckoutHours,
     },
   );
   if (error || !data)

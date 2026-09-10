@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { validBedroomChoices } from "@casa-marga/shared/booking";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -39,15 +40,20 @@ export default function BookingModal({
   const [selectedCheckIn, setSelectedCheckIn] = useState(checkIn);
   const [selectedCheckOut, setSelectedCheckOut] = useState(checkOut);
   const [guests, setGuests] = useState(2);
+  const [bedroomChoice, setBedroomChoice] = useState<
+    "bedroom_1" | "bedroom_2" | "both_bedrooms"
+  >("bedroom_1");
   const [parkingType, setParkingType] = useState<"none" | "car" | "motorcycle">(
     "none",
   );
-  const bedroomChoice =
-    guests <= 2
-      ? ("bedroom_1" as const)
-      : guests <= 4
-        ? ("bedroom_2" as const)
-        : ("both_bedrooms" as const);
+  const [excessCheckoutHours, setExcessCheckoutHours] = useState(0);
+  const availableBedrooms = validBedroomChoices(guests);
+  const chooseGuests = (value: number) => {
+    setGuests(value);
+    if (!(validBedroomChoices(value) as readonly string[]).includes(bedroomChoice)) {
+      setBedroomChoice(validBedroomChoices(value)[0]);
+    }
+  };
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -82,7 +88,7 @@ export default function BookingModal({
       availabilityNotified.current = true;
       window.dispatchEvent(new Event("snowaz:availability-changed"));
       void showSuccess(
-        "Booking request received. Your dates are held for two hours.",
+        "Booking request received. Your dates are held for 24 hours.",
       );
     }
     if (state.status === "error" && state.message)
@@ -131,12 +137,12 @@ export default function BookingModal({
               }}
             />
             <span aria-hidden="true">✓</span>
-            <p className="eyebrow">Dates held for two hours</p>
-            <h2 id={titleId}>Complete your down payment.</h2>
+                <p className="eyebrow">Dates held for 24 hours</p>
+            <h2 id={titleId}>Complete your security deposit.</h2>
             <p>
               Your booking reference is{" "}
               <strong>{state.bookingReference}</strong>. Pay the required ₱1,000
-              down payment below, then submit the bank reference for SnowAZ
+              refundable security deposit below, then submit the bank reference for SnowAZ
               verification. Payment does not confirm the reservation until it is
               verified in MariBank.
             </p>
@@ -145,6 +151,7 @@ export default function BookingModal({
               checkOut={selectedCheckOut}
               guests={guests}
               bedroomChoice={bedroomChoice}
+              excessCheckoutHours={excessCheckoutHours}
             />
             <div className="booking-success-qr">
               <Image
@@ -166,7 +173,7 @@ export default function BookingModal({
                 type="button"
                 onClick={async () => {
                   await navigator.clipboard.writeText(
-                    `Hello SnowAZ! My booking reference is ${state.bookingReference}. I paid the ₱1,000 booking down payment and I am attaching my receipt for verification.`,
+                    `Hello SnowAZ! My booking reference is ${state.bookingReference}. I paid the ₱1,000 refundable security deposit and I am attaching my receipt for verification.`,
                   );
                   setCopied(true);
                 }}
@@ -181,7 +188,7 @@ export default function BookingModal({
                 rel="noreferrer"
                 onClick={() => {
                   void navigator.clipboard.writeText(
-                    `Hello SnowAZ! My booking reference is ${state.bookingReference}. I paid the ₱1,000 booking down payment and I am attaching my receipt for verification.`,
+                    `Hello SnowAZ! My booking reference is ${state.bookingReference}. I paid the ₱1,000 refundable security deposit and I am attaching my receipt for verification.`,
                   );
                   setCopied(true);
                 }}
@@ -191,7 +198,7 @@ export default function BookingModal({
               <a href={`tel:${propertyProfile.phoneHref}`}>Call SnowAZ</a>
             </div>
             <small className="booking-deadline">
-              Complete the transfer and submit its reference within two hours or
+                    Complete the transfer and submit its reference within 24 hours or
               the pending dates may reopen.
             </small>
             <button type="button" onClick={onClose}>
@@ -221,7 +228,13 @@ export default function BookingModal({
               />
               <input type="hidden" name="roomTypeId" value="" />
               <input type="hidden" name="preferredContact" value="phone" />
-              <input type="hidden" name="bedroomChoice" value={bedroomChoice} />
+              <label>
+                <span>Excess checkout time (optional)</span>
+                <select name="excessCheckoutHours" value={excessCheckoutHours} onChange={(event) => setExcessCheckoutHours(Number(event.target.value))}>
+                  <option value="0">No excess time</option><option value="1">1 hour — ₱200</option><option value="2">2 hours — ₱400</option><option value="3">3 hours — ₱600</option>
+                </select>
+                <small>Check-out is 11:00 AM. More than 3 hours may be charged as half-day or an additional night, subject to availability.</small>
+              </label>
               <label>
                 <span>Overnight parking (optional)</span>
                 <select
@@ -265,14 +278,14 @@ export default function BookingModal({
                 </label>
               </div>
               <label>
-                <span>Number of guests (maximum 8)</span>
+                <span>Number of guests (maximum 6)</span>
                 <select
                   name="guests"
                   value={guests}
-                  onChange={(event) => setGuests(Number(event.target.value))}
+                  onChange={(event) => chooseGuests(Number(event.target.value))}
                   required
                 >
-                  {Array.from({ length: 8 }, (_, index) => index + 1).map(
+                  {Array.from({ length: 6 }, (_, index) => index + 1).map(
                     (guestCount) => (
                       <option key={guestCount} value={guestCount}>
                         {guestCount} guest{guestCount === 1 ? "" : "s"}
@@ -281,24 +294,32 @@ export default function BookingModal({
                   )}
                 </select>
                 <small>
-                  1BR for up to 2 guests: ₱1,800/night. 2BR for up to 4 guests:
-                  ₱2,300/night. Additional guests: ₱300 per guest/night.
+                  One bedroom starts at ₱1,800/night. Both bedrooms accommodate
+                  4–5 guests for ₱2,300; the sixth guest is +₱300.
                 </small>
               </label>
               <label>
                 <span>Bedroom selection</span>
-                <select value={bedroomChoice} disabled>
-                  <option value={bedroomChoice}>
-                    {bedroomChoice === "bedroom_1"
-                      ? "Bedroom 1 — standard single bunk bed"
-                      : bedroomChoice === "bedroom_2"
-                        ? "Bedroom 2 — Twin-over-double bunk bed"
-                        : "Both bedrooms"}
-                  </option>
+                <select
+                  name="bedroomChoice"
+                  value={bedroomChoice}
+                  onChange={(event) =>
+                    setBedroomChoice(event.target.value as typeof bedroomChoice)
+                  }
+                >
+                  {availableBedrooms.map((choice) => (
+                    <option key={choice} value={choice}>
+                      {choice === "bedroom_1"
+                        ? "Bedroom 1 — standard single bunk bed"
+                        : choice === "bedroom_2"
+                          ? "Bedroom 2 — Twin-over-double bunk bed"
+                          : "Both bedrooms"}
+                    </option>
+                  ))}
                 </select>
                 <small>
-                  Assigned automatically: 1–2 guests use Bedroom 1, 3–4 use
-                  Bedroom 2, and 5–8 use both bedrooms.
+                  Two guests may choose Bedroom 1 or Bedroom 2. Other guest
+                  counts show the bedroom setup that fits their group.
                 </small>
               </label>
               <BookingPriceReceipt
@@ -307,6 +328,7 @@ export default function BookingModal({
                 guests={guests}
                 bedroomChoice={bedroomChoice}
                 parkingType={parkingType}
+                excessCheckoutHours={excessCheckoutHours}
               />
               <label>
                 <span>Full name</span>
@@ -345,8 +367,8 @@ export default function BookingModal({
                 <strong>Before you send</strong>
                 <ul>
                   <li>
-                    Your dates will be held as pending for two hours while you
-                    send the required ₱1,000 down payment.
+                    Your dates will be held as pending for 24 hours while you
+                    send the required ₱1,000 refundable security deposit.
                   </li>
                   <li>Quiet hours are from 11:00 PM to 7:00 AM.</li>
                   <li>No smoking inside the unit; a ₱5,000 penalty applies.</li>

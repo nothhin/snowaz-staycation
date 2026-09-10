@@ -25,6 +25,24 @@ export type BalanceActionState = {
 };
 export type OperationActionState = BalanceActionState;
 
+export async function createManualBooking(formData: FormData) {
+  await requireStaff(["manager", "admin"]);
+  const parsed = z.object({
+    fullName: z.string().trim().min(2).max(120), email: z.string().trim().email().max(254).or(z.literal("")),
+    phone: z.string().trim().min(7).max(30), checkIn: z.string().date(), checkOut: z.string().date(),
+    guests: z.coerce.number().int().min(1).max(6), bedroom: z.enum(["bedroom_1", "bedroom_2", "both_bedrooms"]),
+    excessCheckoutHours: z.coerce.number().int().min(0).max(3),
+    contact: z.enum(["whatsapp", "messenger", "phone", "email"]), requests: z.string().max(1000),
+  }).safeParse({ fullName: formData.get("fullName"), email: formData.get("email") || "", phone: formData.get("phone"), checkIn: formData.get("checkIn"), checkOut: formData.get("checkOut"), guests: formData.get("guests"), bedroom: formData.get("bedroom"), excessCheckoutHours: formData.get("excessCheckoutHours") ?? "0", contact: formData.get("contact"), requests: formData.get("requests") || "" });
+  if (!parsed.success) redirect("/admin?error=invalid-manual-booking#manual-booking");
+  const token = createDepositToken();
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("staff_create_snowaz_booking", { guest_name: parsed.data.fullName, guest_email: parsed.data.email, guest_phone: parsed.data.phone, arrival: parsed.data.checkIn, departure: parsed.data.checkOut, guests: parsed.data.guests, bedroom_selection: parsed.data.bedroom, contact_method: parsed.data.contact, requests: parsed.data.requests, token_hash: hashDepositToken(token), excess_hours: parsed.data.excessCheckoutHours });
+  if (error || !data?.[0]) redirect("/admin?error=manual-booking-failed#manual-booking");
+  revalidatePath("/admin");
+  redirect(`/admin?saved=manual-booking&booking=${encodeURIComponent(data[0].booking_reference)}#manual-booking`);
+}
+
 const roomTypeSchema = z.object({
   id: z.string().uuid(),
   rate: z.coerce.number().int().min(0).max(1_000_000),
@@ -405,7 +423,7 @@ export async function recordRemainingBalance(
     return {
       status: "error",
       message:
-        "The remaining balance could not be recorded. Confirm that the down payment is verified and a balance is still due.",
+        "The remaining balance could not be recorded. Confirm that the security deposit is verified and an accommodation balance is still due.",
     };
   revalidatePath("/admin");
   revalidatePath("/admin/confirmed");
@@ -436,7 +454,9 @@ export async function updateBookingOperations(
       checkIn: z.string().date(),
       checkOut: z.string().date(),
       guests: z.coerce.number().int().min(1).max(8),
+      initialGuests: z.coerce.number().int().min(1).max(8),
       bedroom: z.enum(["bedroom_1", "bedroom_2", "both_bedrooms"]),
+      excessCheckoutHours: z.coerce.number().int().min(0).max(3),
       stayStatus: z.enum(["upcoming", "checked_in", "checked_out", "no_show"]),
       idType: z.string().trim().max(40).optional(),
       idLast4: z
@@ -449,12 +469,24 @@ export async function updateBookingOperations(
         ])
         .optional(),
     })
+    .refine(
+      (value) =>
+        (value.guests <= 6 &&
+          ((value.bedroom === "bedroom_1" && value.guests <= 2) ||
+            (value.bedroom === "bedroom_2" && value.guests >= 2 && value.guests <= 3) ||
+            (value.bedroom === "both_bedrooms" && value.guests >= 4))) ||
+        (value.guests > 6 &&
+          value.guests === value.initialGuests &&
+          value.bedroom === "both_bedrooms"),
+    )
     .safeParse({
       bookingId: formData.get("bookingId"),
       checkIn: formData.get("checkIn"),
       checkOut: formData.get("checkOut"),
       guests: formData.get("guests"),
+      initialGuests: formData.get("initialGuests"),
       bedroom: formData.get("bedroom"),
+      excessCheckoutHours: formData.get("excessCheckoutHours") ?? "0",
       stayStatus: formData.get("stayStatus"),
       idType: formData.get("idType") || "",
       idLast4: formData.get("idLast4") || "",
@@ -472,6 +504,7 @@ export async function updateBookingOperations(
     departure: parsed.data.checkOut,
     guests: parsed.data.guests,
     bedroom_selection: parsed.data.bedroom,
+    excess_hours: parsed.data.excessCheckoutHours,
     next_stay_status: parsed.data.stayStatus,
     id_type: parsed.data.idType || null,
     id_last4: parsed.data.idLast4 || null,

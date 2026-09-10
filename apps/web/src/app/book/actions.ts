@@ -57,6 +57,7 @@ async function saveBookingRequest(formData: FormData) {
         guests: parsed.data.guests,
         bedroom_selection: parsed.data.bedroomChoice,
         parking_selection: parsed.data.parkingType,
+        excess_hours: parsed.data.excessCheckoutHours,
         requests: bookingRequests,
         contact_method: parsed.data.preferredContact,
         consent_version: "booking-request-v2",
@@ -93,6 +94,7 @@ async function saveBookingRequest(formData: FormData) {
               guests: parsed.data.guests,
               bedroom_selection: bedroomLabel,
               special_requests: parsed.data.specialRequests || "None",
+              excess_checkout_time: parsed.data.excessCheckoutHours ? `${parsed.data.excessCheckoutHours} hour(s) — ₱${parsed.data.excessCheckoutHours * 200}` : "None",
             }),
           },
         );

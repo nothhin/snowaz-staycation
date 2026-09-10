@@ -23,6 +23,15 @@ export const galleryImages = [
   { src: "/images/snowaz/kitchen-detail.jpg", alt: "SnowAZ kitchen cabinetry, countertop, and gold pendant lights" },
   { src: "/images/snowaz/kitchen-updated-wide.jpg", alt: "Updated SnowAZ kitchen with refrigerator, appliances, and blue accent lighting" },
   { src: "/images/snowaz/kitchen-updated-detail.jpg", alt: "Updated SnowAZ kitchen cabinetry, countertop, and gold pendant lights" },
+  { src: "/images/snowaz/living-room-fireplace.jpg", alt: "SnowAZ living room TV console with fireplace display and warm accent lighting" },
+  { src: "/images/snowaz/living-room-lounge.jpg", alt: "SnowAZ living room lounge with sectional seating and gold wall decor" },
+  { src: "/images/snowaz/kitchen-compact.jpg", alt: "Compact SnowAZ kitchen with refrigerator, cookware, and countertop appliances" },
+  { src: "/images/snowaz/dining-room-gold.jpg", alt: "SnowAZ dining area set for four with gold mirrors and modern lighting" },
+  { src: "/images/snowaz/bathroom-vanity.jpg", alt: "SnowAZ bathroom vanity with illuminated round mirror and decorative plants" },
+  { src: "/images/snowaz/bathroom-shower.jpg", alt: "SnowAZ bathroom with shower, sink, and illuminated vanity mirror" },
+  { src: "/images/snowaz/bedroom-detail.jpg", alt: "SnowAZ bedroom dresser with warm lamp and blue wall art" },
+  { src: "/images/snowaz/bedroom-wide.jpg", alt: "SnowAZ bedroom with daybed, air conditioner, dresser, and warm lighting" },
+  { src: "/images/snowaz/bedroom-window.jpg", alt: "SnowAZ bedroom daybed beside a softly lit window and dresser" },
 ] as const;
 
 export const galleryVideos = [
@@ -30,18 +39,19 @@ export const galleryVideos = [
   { src: "/images/snowaz/kitchen-dining-tour.mp4", label: "Kitchen and dining walkthrough" },
   { src: "/images/snowaz/extended-kitchen-tour.mp4", label: "Extended kitchen tour" },
   { src: "/images/snowaz/extended-dining-tour.mp4", label: "Extended dining room tour" },
+  { src: "/images/snowaz/condo-interior-tour.mp4", label: "SnowAZ condo interior tour" },
 ] as const;
 
 export const amenityHighlights = [
   ["2 BR", "Condo unit"],
-  ["Up to 8", "Guest capacity"],
+  ["Up to 6", "Guest capacity"],
   ["24/7", "Building security"],
   ["Direct", "Owner assistance"],
 ] as const;
 
 export const stayHighlights = [
   { title: "Two-bedroom comfort", copy: "A fully furnished two-bedroom condo with a living and dining area, coffee-bar corner, and one bathroom." },
-  { title: "For families and friends", copy: "Comfortably arranged for family vacations, group trips, and work-from-home stays of up to 8 guests." },
+  { title: "For families and friends", copy: "Comfortably arranged for family vacations, group trips, and work-from-home stays of up to 6 guests." },
   { title: "Easy direct booking", copy: "View the calendar, choose your preferred dates, and send a request directly to SnowAZ." },
 ] as const;
 
@@ -72,11 +82,10 @@ export const checkoutRules = [
 ] as const;
 
 export const nearbyPlaces = [
-  "Walking distance to Oakridge, Starbucks, Rustan’s Supermarket, and restaurants",
-  "About 1 km from Vicente Gullas Memorial Hospital",
-  "About 1.5 km from Cebu I.T. Park",
-  "About 6.6 km from Mactan-Cebu International Airport",
-  "10–15 minutes to GAGFA/Sykes, Ayala, SM, Chong Hua, UCMed, CDU, and Parkmall",
-  "Near USC Talamban, UC Banilad, and UV Gullas Banilad campuses",
-  "Near SM, JMall, Gaisano Country Mall, Ayala Central Bloc, and Banilad Town Centre",
+  "Cebu I.T. Park — 3.2 km",
+  "Ayala Center Cebu — 4.5 km",
+  "SM City Cebu — 5.5 km",
+  "Fuente Circle — 4 km",
+  "Mactan-Cebu International Airport — 9 km",
+  "Nearby beaches — approximately 10–13 km",
 ] as const;

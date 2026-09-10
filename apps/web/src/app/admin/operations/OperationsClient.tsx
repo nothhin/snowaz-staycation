@@ -43,6 +43,8 @@ export type OpsBooking = {
   bookingStatus: string;
   stayStatus: string;
   totalMinor: number;
+  excessCheckoutHours?: number;
+  excessCheckoutChargeMinor?: number;
   paidMinor: number;
   remainingMinor: number;
   idType: string | null;
@@ -152,6 +154,7 @@ function BookingModal({
               <span>Remaining</span>
               <strong>{money.format(booking.remainingMinor / 100)}</strong>
             </div>
+            {(booking.excessCheckoutChargeMinor ?? 0) > 0 ? <div><span>Late checkout</span><strong>{booking.excessCheckoutHours} hr · {money.format((booking.excessCheckoutChargeMinor ?? 0) / 100)}</strong></div> : null}
           </section>
           <div className={styles.operationsFormsGrid}>
             <form action={editAction} className={styles.operationsForm}>
@@ -161,6 +164,13 @@ function BookingModal({
               </div>
               <input type="hidden" name="bookingId" value={booking.id} />
               <div className={styles.operationsFieldGrid}>
+                <label>
+                  <span>Excess checkout time</span>
+                  <select name="excessCheckoutHours" defaultValue={String(booking.excessCheckoutHours ?? 0)}>
+                    <option value="0">None</option><option value="1">1 hour — ₱200</option><option value="2">2 hours — ₱400</option><option value="3">3 hours — ₱600</option>
+                  </select>
+                  <small>More than 3 hours requires a half-day or additional-night quote.</small>
+                </label>
                 <label>
                   <span>Check-in</span>
                   <input
@@ -182,10 +192,15 @@ function BookingModal({
                 <label>
                   <span>Guests</span>
                   <input
+                    type="hidden"
+                    name="initialGuests"
+                    value={booking.guestCount}
+                  />
+                  <input
                     name="guests"
                     type="number"
                     min="1"
-                    max="8"
+                    max={Math.max(6, booking.guestCount)}
                     defaultValue={booking.guestCount}
                     required
                   />

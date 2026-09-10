@@ -14,6 +14,7 @@ export type AdminEnquiry = {
   depositRefundReference:string|null; roomTypeName:string|null;
   bedroomChoice:"bedroom_1"|"bedroom_2"|"both_bedrooms"; stayNights:number;
   baseNightlyRateMinor:number; additionalGuestCount:number; additionalGuestChargeMinor:number;
+  excessCheckoutHours?:number; excessCheckoutChargeMinor?:number;
   parkingType?:"none"|"car"|"motorcycle"; parkingNightlyRateMinor?:number; parkingChargeMinor?:number;
   totalMinor:number; depositAmountMinor:number; balancePaidMinor:number; remainingBalanceMinor:number;
   balancePaymentMethod:string|null; balancePaymentReference:string|null; balancePaidAt:string|null;

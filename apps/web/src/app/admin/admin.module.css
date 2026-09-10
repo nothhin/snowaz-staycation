@@ -1872,3 +1872,45 @@
     font-size: 38px;
   }
 }
+.bookingForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.bookingForm input,
+.bookingForm select,
+.bookingForm textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem;
+  border: 1px solid var(--line, #d8d2c8);
+  border-radius: 0.5rem;
+  background: var(--surface, #fff);
+}
+
+.bookingForm textarea,
+.bookingForm button {
+  grid-column: 1 / -1;
+}
+
+.bookingForm label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.bookingForm button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink, #1f2925);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .bookingForm { grid-template-columns: 1fr; }
+}

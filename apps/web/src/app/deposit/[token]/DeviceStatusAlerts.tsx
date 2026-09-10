@@ -6,7 +6,7 @@ const preferenceKey = "snowaz:device-status-alerts:v1";
 const statusKey = "snowaz:last-deposit-status:v1";
 
 function describeStatus(status: string) {
-  if (status === "verified") return "Your down payment is verified and your stay is confirmed.";
+  if (status === "verified") return "Your security deposit is verified and your stay is confirmed.";
   if (status === "refund_pending") return "Your cancellation is recorded and your refund is being processed.";
   if (status === "refunded") return "Your refund has been recorded.";
   if (status === "submitted") return "SnowAZ received your payment details and is verifying them.";

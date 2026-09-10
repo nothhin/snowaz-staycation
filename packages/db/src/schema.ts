@@ -138,6 +138,8 @@ export const bookingRequests = pgTable("booking_requests", {
   baseNightlyRateMinor: bigint("base_nightly_rate_minor", { mode: "number" }).notNull(),
   additionalGuestCount: integer("additional_guest_count").notNull(),
   additionalGuestChargeMinor: bigint("additional_guest_charge_minor", { mode: "number" }).notNull(),
+  excessCheckoutHours: integer("excess_checkout_hours").notNull().default(0),
+  excessCheckoutChargeMinor: bigint("excess_checkout_charge_minor", { mode: "number" }).notNull().default(0),
   totalMinor: bigint("total_minor", { mode: "number" }).notNull(),
   specialRequests: text("special_requests"),
   status: bookingRequestStatus("status").notNull().default("pending"),

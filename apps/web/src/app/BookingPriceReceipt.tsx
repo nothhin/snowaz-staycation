@@ -12,8 +12,9 @@ type BookingPriceReceiptProps = {
   checkIn: string;
   checkOut: string;
   guests: number;
-  bedroomChoice?: "bedroom_1" | "bedroom_2" | "both_bedrooms";
+  bedroomChoice: "bedroom_1" | "bedroom_2" | "both_bedrooms";
   parkingType?: "none" | "car" | "motorcycle";
+  excessCheckoutHours?: number;
 };
 
 const bedroomLabels = {
@@ -28,6 +29,7 @@ export default function BookingPriceReceipt({
   guests,
   bedroomChoice,
   parkingType = "none",
+  excessCheckoutHours = 0,
 }: BookingPriceReceiptProps) {
   let receipt: ReturnType<typeof calculateSnowazBookingReceipt> | null = null;
   try {
@@ -35,7 +37,9 @@ export default function BookingPriceReceipt({
       checkIn,
       checkOut,
       guests,
+      bedroomChoice,
       parkingType,
+      excessCheckoutHours,
     );
   } catch {
     // The form fields provide their own validation while the receipt waits for valid values.
@@ -81,9 +85,7 @@ export default function BookingPriceReceipt({
         <div>
           <dt>Bedroom selection</dt>
           <dd>
-            {bedroomChoice
-              ? bedroomLabels[bedroomChoice]
-              : `${receipt.bedrooms} bedroom${receipt.bedrooms === 1 ? "" : "s"}`}
+            {bedroomLabels[bedroomChoice]}
           </dd>
         </div>
         <div>
@@ -101,6 +103,12 @@ export default function BookingPriceReceipt({
               </small>
             </dt>
             <dd>+{php.format(receipt.additionalGuestChargeMinor / 100)}</dd>
+          </div>
+        ) : null}
+        {receipt.excessCheckoutChargeMinor > 0 ? (
+          <div className="booking-receipt-additional">
+            <dt>Excess checkout time<br /><small>{receipt.excessCheckoutHours} hour{receipt.excessCheckoutHours === 1 ? "" : "s"} × ₱200</small></dt>
+            <dd>+{php.format(receipt.excessCheckoutChargeMinor / 100)}</dd>
           </div>
         ) : null}
         {receipt.parkingChargeMinor > 0 ? (
@@ -121,8 +129,8 @@ export default function BookingPriceReceipt({
           <dd>{php.format(receipt.totalMinor / 100)}</dd>
         </div>
         <div className="booking-receipt-down">
-          <dt>Required down payment</dt>
-          <dd>{php.format(receipt.downPaymentMinor / 100)}</dd>
+          <dt>Refundable security deposit</dt>
+          <dd>{php.format(receipt.securityDepositMinor / 100)}</dd>
         </div>
         <div>
           <dt>Remaining balance</dt>
@@ -130,8 +138,9 @@ export default function BookingPriceReceipt({
         </div>
       </dl>
       <p>
-        The ₱1,000 down payment is deducted from the total accommodation payment
-        and is verified manually.
+        The ₱1,000 security deposit is separate from the accommodation payment,
+        verified manually, and refundable after checkout subject to the house
+        rules and property inspection.
       </p>
     </aside>
   );

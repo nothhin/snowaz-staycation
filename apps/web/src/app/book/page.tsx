@@ -26,7 +26,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
         <label><span>Contact number (required)</span><input name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder="09xx xxx xxxx" required /><small>SnowAZ will call this number about your request.</small></label>
         <label><span>Special requests (optional)</span><textarea name="specialRequests" rows={4} maxLength={1000} placeholder="Arrival time, celebration, or anything SnowAZ should know" /></label>
         <label className={styles.consent}><input name="consent" type="checkbox" required /><span>I agree that SnowAZ may use my contact and stay details to respond to this request. I have read the <Link href="/privacy">Privacy Notice</Link> and <Link href="/cookies">Cookie Notice</Link>. This does not confirm a reservation, and payment instructions are handled offline.</span></label>
-        <button type="submit">Continue to down payment</button><small>Your dates will be held for two hours. The required ₱1,000 down payment is verified manually in MariBank.</small>
+        <button type="submit">Continue to security deposit</button><small>Your dates will be held for 24 hours. The required ₱1,000 refundable security deposit is verified manually in MariBank.</small>
       </form>
     </div>
   </main>;

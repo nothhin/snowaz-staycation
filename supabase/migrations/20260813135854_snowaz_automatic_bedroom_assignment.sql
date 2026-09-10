@@ -12,7 +12,7 @@ create or replace function public.submit_snowaz_booking_request(
 returns table(booking_id uuid, booking_reference text, deposit_expires_at timestamptz)
 language plpgsql security definer set search_path = '' as $$
 declare
-  target_id uuid; expiry timestamptz := now() + interval '2 hours';
+  target_id uuid; expiry timestamptz := now() + interval '24 hours';
   nights integer; base_rate bigint; extra_count integer; extra_charge bigint; booking_total bigint;
 begin
   if char_length(trim(guest_name)) not between 2 and 120

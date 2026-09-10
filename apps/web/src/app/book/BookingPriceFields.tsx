@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { validBedroomChoices } from "@casa-marga/shared/booking";
 import BookingPriceReceipt from "../BookingPriceReceipt";
 import styles from "./book.module.css";
 
@@ -18,15 +19,20 @@ export default function BookingPriceFields({
   const [checkIn, setCheckIn] = useState(initialCheckIn);
   const [checkOut, setCheckOut] = useState(initialCheckOut);
   const [guests, setGuests] = useState(() => Number(initialGuests) || 2);
+  const [bedroomChoice, setBedroomChoice] = useState<
+    "bedroom_1" | "bedroom_2" | "both_bedrooms"
+  >("bedroom_1");
   const [parkingType, setParkingType] = useState<"none" | "car" | "motorcycle">(
     "none",
   );
-  const bedroomChoice =
-    guests <= 2
-      ? ("bedroom_1" as const)
-      : guests <= 4
-        ? ("bedroom_2" as const)
-        : ("both_bedrooms" as const);
+  const [excessCheckoutHours, setExcessCheckoutHours] = useState(0);
+  const availableBedrooms = validBedroomChoices(guests);
+  const chooseGuests = (value: number) => {
+    setGuests(value);
+    if (!(validBedroomChoices(value) as readonly string[]).includes(bedroomChoice)) {
+      setBedroomChoice(validBedroomChoices(value)[0]);
+    }
+  };
 
   return (
     <>
@@ -53,14 +59,21 @@ export default function BookingPriceFields({
         </label>
       </div>
       <label>
-        <span>Number of guests (maximum 8)</span>
+        <span>Excess checkout time (optional)</span>
+        <select name="excessCheckoutHours" value={excessCheckoutHours} onChange={(event) => setExcessCheckoutHours(Number(event.target.value))}>
+          <option value="0">No excess time</option><option value="1">1 hour — ₱200</option><option value="2">2 hours — ₱400</option><option value="3">3 hours — ₱600</option>
+        </select>
+        <small>Check-out is 11:00 AM. More than 3 hours may be charged as half-day or an additional night, subject to availability.</small>
+      </label>
+      <label>
+        <span>Number of guests (maximum 6)</span>
         <select
           name="guests"
           value={guests}
-          onChange={(event) => setGuests(Number(event.target.value))}
+          onChange={(event) => chooseGuests(Number(event.target.value))}
           required
         >
-          {Array.from({ length: 8 }, (_, index) => index + 1).map(
+          {Array.from({ length: 6 }, (_, index) => index + 1).map(
             (guestCount) => (
               <option key={guestCount} value={guestCount}>
                 {guestCount} guest{guestCount === 1 ? "" : "s"}
@@ -69,11 +82,11 @@ export default function BookingPriceFields({
           )}
         </select>
         <small>
-          1BR for up to 2 guests: ₱1,800/night. 2BR for up to 4 guests:
-          ₱2,300/night. Additional guests: ₱300 per guest/night.
+          Bedroom 1 or Bedroom 2 for 1–2 guests starts at ₱1,800/night.
+          Bedroom 2 for 3 guests is ₱2,100. Both bedrooms accommodate 4–5
+          guests for ₱2,300, with the sixth guest at +₱300.
         </small>
       </label>
-      <input type="hidden" name="bedroomChoice" value={bedroomChoice} />
       <label>
         <span>Overnight parking (optional)</span>
         <select
@@ -90,18 +103,26 @@ export default function BookingPriceFields({
       </label>
       <label>
         <span>Bedroom selection</span>
-        <select value={bedroomChoice} disabled>
-          <option value={bedroomChoice}>
-            {bedroomChoice === "bedroom_1"
-              ? "Bedroom 1 — standard single bunk bed"
-              : bedroomChoice === "bedroom_2"
-                ? "Bedroom 2 — Twin-over-double bunk bed"
-                : "Both bedrooms"}
-          </option>
+        <select
+          name="bedroomChoice"
+          value={bedroomChoice}
+          onChange={(event) =>
+            setBedroomChoice(event.target.value as typeof bedroomChoice)
+          }
+        >
+          {availableBedrooms.map((choice) => (
+            <option key={choice} value={choice}>
+              {choice === "bedroom_1"
+                ? "Bedroom 1 — standard single bunk bed"
+                : choice === "bedroom_2"
+                  ? "Bedroom 2 — Twin-over-double bunk bed"
+                  : "Both bedrooms"}
+            </option>
+          ))}
         </select>
         <small>
-          Assigned automatically: 1–2 guests use Bedroom 1, 3–4 use Bedroom 2,
-          and 5–8 use both bedrooms.
+          Choose your preferred available bedroom setup. Two guests may select
+          either Bedroom 1 or Bedroom 2.
         </small>
       </label>
       <BookingPriceReceipt
@@ -110,6 +131,7 @@ export default function BookingPriceFields({
         guests={guests}
         bedroomChoice={bedroomChoice}
         parkingType={parkingType}
+        excessCheckoutHours={excessCheckoutHours}
       />
     </>
   );
