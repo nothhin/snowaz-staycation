@@ -37,7 +37,7 @@ export async function createManualBooking(formData: FormData) {
   if (!parsed.success) redirect("/admin?error=invalid-manual-booking#manual-booking");
   const token = createDepositToken();
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.rpc("staff_create_snowaz_booking", { guest_name: parsed.data.fullName, guest_email: parsed.data.email, guest_phone: parsed.data.phone, arrival: parsed.data.checkIn, departure: parsed.data.checkOut, guests: parsed.data.guests, bedroom_selection: parsed.data.bedroom, contact_method: parsed.data.contact, requests: parsed.data.requests, token_hash: hashDepositToken(token), excess_hours: parsed.data.excessCheckoutHours });
+  const { data, error } = await supabase.rpc("staff_create_snowaz_priced_booking", { guest_name: parsed.data.fullName, guest_email: parsed.data.email, guest_phone: parsed.data.phone, arrival: parsed.data.checkIn, departure: parsed.data.checkOut, guests: parsed.data.guests, bedroom_selection: parsed.data.bedroom, contact_method: parsed.data.contact, requests: parsed.data.requests, token_hash: hashDepositToken(token), excess_hours: parsed.data.excessCheckoutHours });
   if (error || !data?.[0]) redirect("/admin?error=manual-booking-failed#manual-booking");
   revalidatePath("/admin");
   redirect(`/admin?saved=manual-booking&booking=${encodeURIComponent(data[0].booking_reference)}#manual-booking`);
@@ -498,7 +498,7 @@ export async function updateBookingOperations(
         "Check the dates, guest count, bedroom selection, stay status, and ID details.",
     };
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.rpc("staff_update_snowaz_booking", {
+  const { data, error } = await supabase.rpc("staff_update_snowaz_priced_booking", {
     target_id: parsed.data.bookingId,
     arrival: parsed.data.checkIn,
     departure: parsed.data.checkOut,

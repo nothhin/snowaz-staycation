@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { validBedroomChoices } from "@casa-marga/shared/booking";
+import { calculateSnowazBookingReceipt, validBedroomChoices } from "@casa-marga/shared/booking";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
+import { usePricing } from "../PricingProvider";
 import BookingPriceReceipt from "../BookingPriceReceipt";
 import styles from "./book.module.css";
 
@@ -16,6 +18,7 @@ export default function BookingPriceFields({
   initialCheckOut = "",
   initialGuests = "2",
 }: BookingPriceFieldsProps) {
+  const { prices, version } = usePricing();
   const [checkIn, setCheckIn] = useState(initialCheckIn);
   const [checkOut, setCheckOut] = useState(initialCheckOut);
   const [guests, setGuests] = useState(() => Number(initialGuests) || 2);
@@ -26,6 +29,8 @@ export default function BookingPriceFields({
     "none",
   );
   const [excessCheckoutHours, setExcessCheckoutHours] = useState(0);
+  let quotedTotalMinor = 0;
+  try { quotedTotalMinor = calculateSnowazBookingReceipt(checkIn, checkOut, guests, bedroomChoice, parkingType, excessCheckoutHours, prices).totalMinor; } catch { /* Dates may still be incomplete. */ }
   const availableBedrooms = validBedroomChoices(guests);
   const chooseGuests = (value: number) => {
     setGuests(value);
@@ -36,6 +41,8 @@ export default function BookingPriceFields({
 
   return (
     <>
+      <input type="hidden" name="priceVersion" value={version} />
+      <input type="hidden" name="quotedTotalMinor" value={quotedTotalMinor} />
       <div className={styles.grid}>
         <label>
           <span>Check-in</span>
@@ -61,7 +68,7 @@ export default function BookingPriceFields({
       <label>
         <span>Excess checkout time (optional)</span>
         <select name="excessCheckoutHours" value={excessCheckoutHours} onChange={(event) => setExcessCheckoutHours(Number(event.target.value))}>
-          <option value="0">No excess time</option><option value="1">1 hour — ₱200</option><option value="2">2 hours — ₱400</option><option value="3">3 hours — ₱600</option>
+          {[0, 1, 2, 3].map((hours) => <option key={hours} value={hours}>{hours === 0 ? "No excess time" : `${hours} hour${hours === 1 ? "" : "s"} — ${formatPhpMinor(hours * prices.late_checkout_hourly_rate)}`}</option>)}
         </select>
         <small>Check-out is 11:00 AM. More than 3 hours may be charged as half-day or an additional night, subject to availability.</small>
       </label>
@@ -82,9 +89,9 @@ export default function BookingPriceFields({
           )}
         </select>
         <small>
-          Bedroom 1 or Bedroom 2 for 1–2 guests starts at ₱1,800/night.
-          Bedroom 2 for 3 guests is ₱2,100. Both bedrooms accommodate 4–5
-          guests for ₱2,300, with the sixth guest at +₱300.
+          Bedroom 1 starts at {formatPhpMinor(prices.bedroom_1_nightly_rate)}/night.
+          Bedroom 2 is {formatPhpMinor(prices.bedroom_2_nightly_rate)} for 2 guests or {formatPhpMinor(prices.bedroom_2_nightly_rate + prices.additional_guest_nightly_rate)} for 3. Both bedrooms accommodate 4–5
+          guests for {formatPhpMinor(prices.both_bedrooms_nightly_rate)}, with the sixth guest at +{formatPhpMinor(prices.additional_guest_nightly_rate)}.
         </small>
       </label>
       <label>
@@ -97,8 +104,8 @@ export default function BookingPriceFields({
           }
         >
           <option value="none">No parking</option>
-          <option value="car">Car — ₱350/night</option>
-          <option value="motorcycle">Motorcycle — ₱150/night</option>
+          <option value="car">Car — {formatPhpMinor(prices.car_parking_nightly_rate)}/night</option>
+          <option value="motorcycle">Motorcycle — {formatPhpMinor(prices.motorcycle_parking_nightly_rate)}/night</option>
         </select>
       </label>
       <label>

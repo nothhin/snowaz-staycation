@@ -2,12 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { isValidBedroomChoice } from "@casa-marga/shared/booking";
 import {
   hashDepositToken,
   isValidDepositToken,
 } from "@/lib/server/deposit-token";
 import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
+import { isValidBedroomChoice } from "@casa-marga/shared/booking";
 
 export type GuestCountState = {
   status: "idle" | "success" | "error";
@@ -43,7 +43,7 @@ export async function updatePendingGuestCount(
   if (!supabase)
     return { status: "error", message: "The booking service is unavailable." };
   const { data, error } = await supabase.rpc(
-    "update_snowaz_pending_guest_count",
+    "update_snowaz_priced_pending_booking",
     {
       token_hash: hashDepositToken(parsed.data.token),
       guests: parsed.data.guests,
@@ -64,13 +64,14 @@ export async function updatePendingGuestCount(
   };
 }
 
+
 export async function submitDepositReference(formData: FormData) {
   const parsed = z
     .object({
       token: z.string().refine(isValidDepositToken),
       senderName: z.string().trim().min(2).max(120),
       reference: z.string().trim().min(6).max(80),
-      confirmedAmount: z.literal("1000"),
+      confirmedAmount: z.coerce.number().int().min(0).max(99999999),
     })
     .safeParse({
       token: formData.get("token"),
@@ -84,6 +85,12 @@ export async function submitDepositReference(formData: FormData) {
     );
   const supabase = createPublicSupabaseClient();
   if (!supabase) throw new Error("Deposit service is unavailable.");
+  const { data: pricedRows, error: pricingError } = await supabase.rpc("get_snowaz_priced_deposit_request", {
+    token_hash: hashDepositToken(parsed.data.token),
+  });
+  const pricedRequest = Array.isArray(pricedRows) ? pricedRows[0] : null;
+  if (pricingError || !pricedRequest || Number(pricedRequest.deposit_amount_minor) !== parsed.data.confirmedAmount)
+    redirect(`/deposit/${parsed.data.token}?error=invalid-amount`);
   const { data: updated, error } = await supabase.rpc(
     "submit_snowaz_deposit_reference",
     {

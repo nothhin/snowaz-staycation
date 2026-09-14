@@ -5,11 +5,14 @@ import { submitBookingRequest } from "./actions";
 import { propertyProfile } from "@/lib/property";
 import styles from "./book.module.css";
 import BookingPriceFields from "./BookingPriceFields";
+import { getActivePricing } from "@/lib/server/pricing";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
 
 export const metadata: Metadata = { title: "Request a booking" };
 
 export default async function BookingPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const params = await searchParams;
+  const { prices } = await getActivePricing();
   if (params.submitted === "1") return <main className={styles.shell}><section className={styles.success}><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation" width={110} height={110} /><p>Booking request received</p><h1>Thank you. We’ll be in touch.</h1><p>Your dates are pending review—not yet confirmed. SnowAZ Staycation will contact you with availability, the final rate, stay rules, and payment instructions.</p><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Follow up on Messenger</a><Link href="/">Return to SnowAZ</Link></section></main>;
 
   return <main className={styles.shell}>
@@ -17,7 +20,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
     <div className={styles.layout}>
       <section className={styles.intro}><Image src="/images/snowaz/logo.jpg" alt="SnowAZ Staycation logo" width={100} height={100} /><p>Request a reservation</p><h1>Let’s plan your city escape.</h1><p>Send your preferred dates and contact details. SnowAZ will confirm availability, the final price, payment instructions, and house rules directly with you.</p><aside><strong>Need an immediate answer?</strong><a href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Open Facebook Messenger</a><a href={`tel:${propertyProfile.phoneHref}`}>Call {propertyProfile.phoneDisplay}</a></aside></section>
       <form action={submitBookingRequest} className={styles.form}>
-        {params.error ? <div className={styles.error} role="alert">We couldn’t submit those details. Check every field or contact us directly.</div> : null}
+        {params.error ? <div className={styles.error} role="alert">{params.error.slice(0, 350)}</div> : null}
         <input type="hidden" name="idempotencyKey" value={crypto.randomUUID()} /><input type="hidden" name="roomTypeId" value="" /><input type="hidden" name="preferredContact" value="phone" />
         <label className={styles.honeypot}>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
         <BookingPriceFields initialCheckIn={params.checkIn} initialCheckOut={params.checkOut} initialGuests={params.guests} />
@@ -26,7 +29,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
         <label><span>Contact number (required)</span><input name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder="09xx xxx xxxx" required /><small>SnowAZ will call this number about your request.</small></label>
         <label><span>Special requests (optional)</span><textarea name="specialRequests" rows={4} maxLength={1000} placeholder="Arrival time, celebration, or anything SnowAZ should know" /></label>
         <label className={styles.consent}><input name="consent" type="checkbox" required /><span>I agree that SnowAZ may use my contact and stay details to respond to this request. I have read the <Link href="/privacy">Privacy Notice</Link> and <Link href="/cookies">Cookie Notice</Link>. This does not confirm a reservation, and payment instructions are handled offline.</span></label>
-        <button type="submit">Continue to security deposit</button><small>Your dates will be held for 24 hours. The required ₱1,000 refundable security deposit is verified manually in MariBank.</small>
+        <button type="submit">Continue to security deposit</button><small>Your dates will be held for 24 hours. The required {formatPhpMinor(prices.refundable_security_deposit)} refundable security deposit is verified manually in MariBank.</small>
       </form>
     </div>
   </main>;

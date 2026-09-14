@@ -10,6 +10,7 @@ const navigation = [
   { label: "Calendar", href: "/admin#calendar", id: "calendar" },
   { label: "Confirmed stays", href: "/admin/confirmed", id: "confirmed" },
   { label: "Operations & finance", href: "/admin/operations", id: "operations" },
+  { label: "Price Management", href: "/admin/prices", id: "prices" },
   { label: "Guest rules", href: "/admin#guest-rules", id: "guest-rules" },
   { label: "Settings", href: "/admin#settings", id: "settings" },
 ] as const;
@@ -25,6 +26,7 @@ function useActiveSection() {
   }, [pathname]);
   if (pathname === "/admin/confirmed") return "confirmed";
   if (pathname === "/admin/operations") return "operations";
+  if (pathname === "/admin/prices") return "prices";
   return hash;
 }
 

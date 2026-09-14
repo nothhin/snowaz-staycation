@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
-import { validBedroomChoices } from "@casa-marga/shared/booking";
+import { calculateSnowazBookingReceipt, validBedroomChoices } from "@casa-marga/shared/booking";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -13,6 +13,8 @@ import qrImage from "@/assets/maribank-deposit-qr.png";
 import { showError, showSuccess } from "@/lib/sweetalert";
 import { RememberBooking, rememberBooking } from "./BookingMemory";
 import BookingPriceReceipt from "./BookingPriceReceipt";
+import { usePricing } from "./PricingProvider";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
 
 type BookingModalProps = {
   checkIn: string;
@@ -27,6 +29,7 @@ export default function BookingModal({
   checkOut,
   onClose,
 }: BookingModalProps) {
+  const { prices, version } = usePricing();
   const [state, action, pending] = useActionState(
     submitBookingRequestInline,
     initialState,
@@ -47,6 +50,8 @@ export default function BookingModal({
     "none",
   );
   const [excessCheckoutHours, setExcessCheckoutHours] = useState(0);
+  let quotedTotalMinor = 0;
+  try { quotedTotalMinor = calculateSnowazBookingReceipt(selectedCheckIn, selectedCheckOut, guests, bedroomChoice, parkingType, excessCheckoutHours, prices).totalMinor; } catch { /* Dates may still be incomplete. */ }
   const availableBedrooms = validBedroomChoices(guests);
   const chooseGuests = (value: number) => {
     setGuests(value);
@@ -141,7 +146,7 @@ export default function BookingModal({
             <h2 id={titleId}>Complete your security deposit.</h2>
             <p>
               Your booking reference is{" "}
-              <strong>{state.bookingReference}</strong>. Pay the required ₱1,000
+              <strong>{state.bookingReference}</strong>. Pay the required {formatPhpMinor(prices.refundable_security_deposit)}
               refundable security deposit below, then submit the bank reference for SnowAZ
               verification. Payment does not confirm the reservation until it is
               verified in MariBank.
@@ -160,7 +165,7 @@ export default function BookingModal({
                 sizes="(max-width: 520px) 82vw, 330px"
               />
               <strong>Merry Shien Gepitulan</strong>
-              <small>MariBank · account ending 5650 · exactly ₱1,000</small>
+              <small>MariBank · account ending 5650 · exactly {formatPhpMinor(prices.refundable_security_deposit)}</small>
             </div>
             <Link
               className="booking-deposit-link"
@@ -173,7 +178,7 @@ export default function BookingModal({
                 type="button"
                 onClick={async () => {
                   await navigator.clipboard.writeText(
-                    `Hello SnowAZ! My booking reference is ${state.bookingReference}. I paid the ₱1,000 refundable security deposit and I am attaching my receipt for verification.`,
+                    `Hello SnowAZ! My booking reference is ${state.bookingReference}. I paid the ${formatPhpMinor(prices.refundable_security_deposit)} refundable security deposit and I am attaching my receipt for verification.`,
                   );
                   setCopied(true);
                 }}
@@ -188,7 +193,7 @@ export default function BookingModal({
                 rel="noreferrer"
                 onClick={() => {
                   void navigator.clipboard.writeText(
-                    `Hello SnowAZ! My booking reference is ${state.bookingReference}. I paid the ₱1,000 refundable security deposit and I am attaching my receipt for verification.`,
+                    `Hello SnowAZ! My booking reference is ${state.bookingReference}. I paid the ${formatPhpMinor(prices.refundable_security_deposit)} refundable security deposit and I am attaching my receipt for verification.`,
                   );
                   setCopied(true);
                 }}
@@ -227,11 +232,13 @@ export default function BookingModal({
                 value={idempotencyKey}
               />
               <input type="hidden" name="roomTypeId" value="" />
+              <input type="hidden" name="priceVersion" value={version} />
+              <input type="hidden" name="quotedTotalMinor" value={quotedTotalMinor} />
               <input type="hidden" name="preferredContact" value="phone" />
               <label>
                 <span>Excess checkout time (optional)</span>
                 <select name="excessCheckoutHours" value={excessCheckoutHours} onChange={(event) => setExcessCheckoutHours(Number(event.target.value))}>
-                  <option value="0">No excess time</option><option value="1">1 hour — ₱200</option><option value="2">2 hours — ₱400</option><option value="3">3 hours — ₱600</option>
+                  {[0, 1, 2, 3].map((hours) => <option key={hours} value={hours}>{hours === 0 ? "No excess time" : `${hours} hour${hours === 1 ? "" : "s"} — ${formatPhpMinor(hours * prices.late_checkout_hourly_rate)}`}</option>)}
                 </select>
                 <small>Check-out is 11:00 AM. More than 3 hours may be charged as half-day or an additional night, subject to availability.</small>
               </label>
@@ -245,8 +252,8 @@ export default function BookingModal({
                   }
                 >
                   <option value="none">No parking</option>
-                  <option value="car">Car — ₱350/night</option>
-                  <option value="motorcycle">Motorcycle — ₱150/night</option>
+                  <option value="car">Car — {formatPhpMinor(prices.car_parking_nightly_rate)}/night</option>
+                  <option value="motorcycle">Motorcycle — {formatPhpMinor(prices.motorcycle_parking_nightly_rate)}/night</option>
                 </select>
               </label>
               <label className="booking-honeypot">
@@ -294,8 +301,8 @@ export default function BookingModal({
                   )}
                 </select>
                 <small>
-                  One bedroom starts at ₱1,800/night. Both bedrooms accommodate
-                  4–5 guests for ₱2,300; the sixth guest is +₱300.
+                  One bedroom starts at {formatPhpMinor(Math.min(prices.bedroom_1_nightly_rate, prices.bedroom_2_nightly_rate))}/night. Both bedrooms accommodate
+                  4–5 guests for {formatPhpMinor(prices.both_bedrooms_nightly_rate)}; the sixth guest is +{formatPhpMinor(prices.additional_guest_nightly_rate)}.
                 </small>
               </label>
               <label>
@@ -368,10 +375,10 @@ export default function BookingModal({
                 <ul>
                   <li>
                     Your dates will be held as pending for 24 hours while you
-                    send the required ₱1,000 refundable security deposit.
+                    send the required {formatPhpMinor(prices.refundable_security_deposit)} refundable security deposit.
                   </li>
                   <li>Quiet hours are from 11:00 PM to 7:00 AM.</li>
-                  <li>No smoking inside the unit; a ₱5,000 penalty applies.</li>
+                  <li>No smoking inside the unit; a {formatPhpMinor(prices.no_smoking_penalty)} penalty applies.</li>
                   <li>
                     Payment remains pending until SnowAZ verifies it in
                     MariBank.

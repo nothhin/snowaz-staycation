@@ -4,10 +4,13 @@ import AvailabilityCalendar from "./AvailabilityCalendar";
 import { SavedBookingLink } from "./BookingMemory";
 import ScrollReveal from "./ScrollReveal";
 import { amenityHighlights, buildingAmenities, checkoutRules, galleryImages, galleryVideos, houseRules, nearbyPlaces, propertyProfile, stayHighlights, unitAmenities } from "@/lib/property";
+import { getActivePricing } from "@/lib/server/pricing";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+  const { prices } = await getActivePricing();
   return <main><ScrollReveal />
     <section className="snow-hero" id="home">
       <Image src="/images/snowaz/hero.jpg" alt="SnowAZ Staycation's cozy living and dining area" fill preload sizes="100vw" className="snow-hero-image" />
@@ -18,7 +21,7 @@ export default function Home() {
         <a className="gold-button" href="#availability">Book your stay</a>
       </nav>
       <div className="snow-hero-copy">
-        <p>1 bedroom · from ₱1,800/night &nbsp; | &nbsp; Both bedrooms · up to 5 guests · ₱2,300/night</p>
+        <p>1 bedroom · from {formatPhpMinor(Math.min(prices.bedroom_1_nightly_rate, prices.bedroom_2_nightly_rate))}/night &nbsp; | &nbsp; Both bedrooms · up to 5 guests · {formatPhpMinor(prices.both_bedrooms_nightly_rate)}/night</p>
         <h1>Your cozy escape,<br /><em>away from home.</em></h1>
         <span>Stay. Relax. Create memories.</span>
         <div className="hero-actions"><a className="gold-button" href="#availability">View availability</a><a className="ghost-button" href={propertyProfile.messengerUrl} target="_blank" rel="noreferrer">Chat on Messenger</a></div>
@@ -37,14 +40,14 @@ export default function Home() {
       <div className="bedroom-grid">
         <article className="bedroom-card">
           <div className="bedroom-card-image"><Image src="/images/snowaz/bedroom-1-bed.jpg" alt="SnowAZ Bedroom 1 bed with air conditioning and warm lighting" fill sizes="(max-width: 850px) 100vw, 50vw" /></div>
-          <div className="bedroom-card-copy"><div><p className="eyebrow">Good for 1–2 guests</p><h3>Bedroom 1</h3><p>A cozy, air-conditioned bedroom for solo guests or couples.</p></div><div className="bedroom-rate"><span>From</span><strong>₱1,800</strong><small>per night · 1–2 guests</small></div><a className="gold-button" href="#availability">Choose Bedroom 1</a></div>
+          <div className="bedroom-card-copy"><div><p className="eyebrow">Good for 1–2 guests</p><h3>Bedroom 1</h3><p>A cozy, air-conditioned bedroom for solo guests or couples.</p></div><div className="bedroom-rate"><span>From</span><strong>{formatPhpMinor(prices.bedroom_1_nightly_rate)}</strong><small>per night · 1–2 guests</small></div><a className="gold-button" href="#availability">Choose Bedroom 1</a></div>
         </article>
         <article className="bedroom-card">
           <div className="bedroom-card-image"><Image src="/images/snowaz/bedroom-2-bunk-bed.jpg" alt="SnowAZ Bedroom 2 twin-over-double bunk bed with air conditioning" fill sizes="(max-width: 850px) 100vw, 50vw" /></div>
-          <div className="bedroom-card-copy"><div><p className="eyebrow">Good for 2–3 guests</p><h3>Bedroom 2</h3><p>An air-conditioned room with a twin-over-double bunk bed.</p></div><div className="bedroom-rate"><span>Rate</span><strong>₱1,800</strong><small>2 guests · ₱2,100 for 3 guests</small></div><a className="gold-button" href="#availability">Choose Bedroom 2</a></div>
+          <div className="bedroom-card-copy"><div><p className="eyebrow">Good for 2–3 guests</p><h3>Bedroom 2</h3><p>An air-conditioned room with a twin-over-double bunk bed.</p></div><div className="bedroom-rate"><span>Rate</span><strong>{formatPhpMinor(prices.bedroom_2_nightly_rate)}</strong><small>2 guests · {formatPhpMinor(prices.bedroom_2_nightly_rate + prices.additional_guest_nightly_rate)} for 3 guests</small></div><a className="gold-button" href="#availability">Choose Bedroom 2</a></div>
         </article>
       </div>
-      <aside className="both-bedroom-rate"><div><p className="eyebrow">For families and groups</p><h3>Both Bedroom 1 &amp; Bedroom 2</h3><p>₱2,300/night for 4–5 guests. The sixth guest is an additional ₱300 per night.</p></div><strong>Maximum 6 guests</strong></aside>
+      <aside className="both-bedroom-rate"><div><p className="eyebrow">For families and groups</p><h3>Both Bedroom 1 &amp; Bedroom 2</h3><p>{formatPhpMinor(prices.both_bedrooms_nightly_rate)}/night for 4–5 guests. The sixth guest is an additional {formatPhpMinor(prices.additional_guest_nightly_rate)} per night.</p></div><strong>Maximum 6 guests</strong></aside>
     </section>
 
     <section className="snow-section" id="gallery">
@@ -65,10 +68,10 @@ export default function Home() {
         <article><h3>Building &amp; safety</h3><ul>{buildingAmenities.map((item) => <li key={item}>{item}</li>)}</ul></article>
       </div>
       <div className="important-notes">
-        <article><strong>Stay rates</strong><p>Bedroom 1 for 1–2 guests is ₱1,800/night. Bedroom 2 is ₱1,800 for 2 guests or ₱2,100 for 3 guests. Both bedrooms are ₱2,300 for 4–5 guests; the sixth guest is an additional ₱300 per night.</p></article>
-        <article><strong>Refundable security deposit</strong><p>A ₱1,000 refundable security deposit is required to secure the stay. It is separate from the accommodation payment and returned after checkout subject to the house rules and property inspection.</p></article>
-        <article><strong>Extras &amp; essentials</strong><ul><li>Optional car parking: ₱350/night</li><li>Early check-in: ₱200/hour, subject to availability</li><li>Check-in: 2:00 PM</li><li>Check-out: 11:00 AM</li></ul></article>
-        <article><strong>House rules</strong><ul>{houseRules.map((rule) => <li key={rule}>{rule}</li>)}</ul></article>
+        <article><strong>Stay rates</strong><p>Bedroom 1 for 1–2 guests is {formatPhpMinor(prices.bedroom_1_nightly_rate)}/night. Bedroom 2 is {formatPhpMinor(prices.bedroom_2_nightly_rate)} for 2 guests or {formatPhpMinor(prices.bedroom_2_nightly_rate + prices.additional_guest_nightly_rate)} for 3 guests. Both bedrooms are {formatPhpMinor(prices.both_bedrooms_nightly_rate)} for 4–5 guests; the sixth guest is an additional {formatPhpMinor(prices.additional_guest_nightly_rate)} per night.</p></article>
+        <article><strong>Refundable security deposit</strong><p>A {formatPhpMinor(prices.refundable_security_deposit)} refundable security deposit is required to secure the stay. It is separate from the accommodation payment and returned after checkout subject to the house rules and property inspection.</p></article>
+        <article><strong>Extras &amp; essentials</strong><ul><li>Optional car parking: {formatPhpMinor(prices.car_parking_nightly_rate)}/night</li><li>Early check-in: {formatPhpMinor(prices.early_checkin_hourly_rate)}/hour, subject to availability</li><li>Check-in: 2:00 PM</li><li>Check-out: 11:00 AM</li></ul></article>
+        <article><strong>House rules</strong><ul>{houseRules.map((rule) => <li key={rule.startsWith("No smoking") ? `No smoking inside the unit; a ${formatPhpMinor(prices.no_smoking_penalty)} penalty applies.` : rule}>{rule}</li>)}</ul></article>
         <article><strong>Before you leave</strong><ul>{checkoutRules.map((rule) => <li key={rule}>{rule}</li>)}</ul></article>
       </div>
     </section>

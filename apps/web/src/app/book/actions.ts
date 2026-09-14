@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { bookingEnquirySchema } from "@casa-marga/shared/booking";
+import { bookingEnquirySchema, calculateSnowazBookingReceipt } from "@casa-marga/shared/booking";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
+import { getActivePricing } from "@/lib/server/pricing";
 import {
   createDepositToken,
   hashDepositToken,
@@ -30,6 +32,15 @@ async function saveBookingRequest(formData: FormData) {
       message:
         "Online requests are temporarily unavailable. Please contact SnowAZ directly.",
     };
+  let activePricing;
+  try { activePricing = await getActivePricing(); }
+  catch { return { ok: false as const, message: "Current prices are temporarily unavailable. Please try again." }; }
+  const newTotalMinor = calculateSnowazBookingReceipt(parsed.data.checkIn, parsed.data.checkOut,
+    parsed.data.guests, parsed.data.bedroomChoice, parsed.data.parkingType, parsed.data.excessCheckoutHours,
+    activePricing.prices).totalMinor;
+  if (parsed.data.priceVersion !== activePricing.version || parsed.data.quotedTotalMinor !== newTotalMinor) {
+    return { ok: false as const, message: `Price changed while this form was open: your previous estimate was ${formatPhpMinor(parsed.data.quotedTotalMinor)}; the current total is ${formatPhpMinor(newTotalMinor)}. Refresh the form, review the updated receipt, then submit again.` };
+  }
   const depositToken = createDepositToken();
   const bedroomLabel =
     parsed.data.bedroomChoice === "bedroom_1"
@@ -46,7 +57,7 @@ async function saveBookingRequest(formData: FormData) {
 
   try {
     const { data, error } = await supabase.rpc(
-      "submit_snowaz_booking_request",
+      "submit_snowaz_priced_booking_request",
       {
         request_idempotency: parsed.data.idempotencyKey,
         guest_name: parsed.data.fullName,
@@ -58,6 +69,8 @@ async function saveBookingRequest(formData: FormData) {
         bedroom_selection: parsed.data.bedroomChoice,
         parking_selection: parsed.data.parkingType,
         excess_hours: parsed.data.excessCheckoutHours,
+        expected_version: parsed.data.priceVersion,
+        quoted_total_minor: parsed.data.quotedTotalMinor,
         requests: bookingRequests,
         contact_method: parsed.data.preferredContact,
         consent_version: "booking-request-v2",
@@ -94,7 +107,7 @@ async function saveBookingRequest(formData: FormData) {
               guests: parsed.data.guests,
               bedroom_selection: bedroomLabel,
               special_requests: parsed.data.specialRequests || "None",
-              excess_checkout_time: parsed.data.excessCheckoutHours ? `${parsed.data.excessCheckoutHours} hour(s) — ₱${parsed.data.excessCheckoutHours * 200}` : "None",
+              excess_checkout_time: parsed.data.excessCheckoutHours ? `${parsed.data.excessCheckoutHours} hour(s) — ${formatPhpMinor(parsed.data.excessCheckoutHours * activePricing.prices.late_checkout_hourly_rate)}` : "None",
             }),
           },
         );
@@ -139,7 +152,7 @@ export async function submitBookingRequestInline(
 
 export async function submitBookingRequest(formData: FormData) {
   const result = await saveBookingRequest(formData);
-  if (!result.ok) redirect("/book?error=unavailable");
+  if (!result.ok) redirect(`/book?error=${encodeURIComponent(result.message)}`);
   redirect(
     `/deposit/${result.depositToken}?new=1&reference=${encodeURIComponent(result.bookingReference)}`,
   );

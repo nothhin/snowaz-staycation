@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type SnowazPrices } from "./pricing";
 
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const MILLISECONDS_PER_DAY = 86_400_000;
@@ -66,6 +67,8 @@ export const bookingEnquirySchema = staySchema
     bedroomChoice: bedroomChoiceSchema,
     parkingType: parkingTypeSchema.default("none"),
     excessCheckoutHours: excessCheckoutHoursSchema,
+    priceVersion: z.coerce.number().int().positive(),
+    quotedTotalMinor: z.coerce.number().int().nonnegative(),
     fullName: z.string().trim().min(2).max(120),
     email: z.union([
       z.literal(""),
@@ -141,15 +144,16 @@ export function isValidBedroomChoice(
 export function calculateSnowazNightlyRateMinor(
   guests: number,
   bedroomChoice: z.infer<typeof bedroomChoiceSchema>,
+  prices: SnowazPrices,
 ) {
   if (!isValidBedroomChoice(guests, bedroomChoice)) {
     throw new RangeError("The bedroom setup does not fit the guest count.");
   }
-  if (bedroomChoice === "bedroom_1") return 180_000;
+  if (bedroomChoice === "bedroom_1") return prices.bedroom_1_nightly_rate;
   if (bedroomChoice === "bedroom_2") {
-    return 180_000 + Math.max(0, guests - 2) * 30_000;
+    return prices.bedroom_2_nightly_rate + Math.max(0, guests - 2) * prices.additional_guest_nightly_rate;
   }
-  return 230_000 + Math.max(0, guests - 5) * 30_000;
+  return prices.both_bedrooms_nightly_rate + Math.max(0, guests - 5) * prices.additional_guest_nightly_rate;
 }
 
 export function calculateSnowazBookingReceipt(
@@ -157,8 +161,9 @@ export function calculateSnowazBookingReceipt(
   checkOut: string,
   guests: number,
   bedroomChoice: z.infer<typeof bedroomChoiceSchema>,
-  parkingType: "none" | "car" | "motorcycle" = "none",
-  excessCheckoutHours = 0,
+  parkingType: "none" | "car" | "motorcycle",
+  excessCheckoutHours: number,
+  prices: SnowazPrices,
 ) {
   if (!Number.isSafeInteger(excessCheckoutHours) || excessCheckoutHours < 0 || excessCheckoutHours > 3) {
     throw new RangeError("Excess checkout time must be between 0 and 3 hours.");
@@ -167,23 +172,24 @@ export function calculateSnowazBookingReceipt(
   const nightlyRateMinor = calculateSnowazNightlyRateMinor(
     guests,
     bedroomChoice,
+    prices,
   );
   const baseNightlyRateMinor =
-    bedroomChoice === "both_bedrooms" ? 230_000 : 180_000;
+    prices[bedroomChoice === "both_bedrooms" ? "both_bedrooms_nightly_rate" : bedroomChoice === "bedroom_2" ? "bedroom_2_nightly_rate" : "bedroom_1_nightly_rate"];
   const parkingNightlyRateMinor =
-    parkingType === "car" ? 35_000 : parkingType === "motorcycle" ? 15_000 : 0;
+    parkingType === "car" ? prices.car_parking_nightly_rate : parkingType === "motorcycle" ? prices.motorcycle_parking_nightly_rate : 0;
   const parkingChargeMinor = parkingNightlyRateMinor * nights;
-  const excessCheckoutChargeMinor = excessCheckoutHours * 20_000;
+  const excessCheckoutChargeMinor = excessCheckoutHours * prices.late_checkout_hourly_rate;
   const totalMinor =
     calculateStayTotalMinor(nightlyRateMinor, nights) + parkingChargeMinor + excessCheckoutChargeMinor;
-  const securityDepositMinor = 100_000;
+  const securityDepositMinor = prices.refundable_security_deposit;
   const additionalGuests =
     bedroomChoice === "bedroom_2"
       ? Math.max(0, guests - 2)
       : bedroomChoice === "both_bedrooms"
         ? Math.max(0, guests - 5)
         : 0;
-  const additionalGuestChargeMinor = additionalGuests * 30_000 * nights;
+  const additionalGuestChargeMinor = additionalGuests * prices.additional_guest_nightly_rate * nights;
 
   return {
     nights,
@@ -193,6 +199,8 @@ export function calculateSnowazBookingReceipt(
     nightlyRateMinor,
     additionalGuests,
     additionalGuestChargeMinor,
+    additionalGuestNightlyRateMinor: prices.additional_guest_nightly_rate,
+    lateCheckoutHourlyRateMinor: prices.late_checkout_hourly_rate,
     parkingType,
     parkingNightlyRateMinor,
     parkingChargeMinor,

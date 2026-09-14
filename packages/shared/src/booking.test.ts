@@ -9,6 +9,14 @@ import {
   bookingEnquirySchema,
   stayNights,
 } from "./booking";
+import type { SnowazPrices } from "./pricing";
+const initialSnowazPrices: SnowazPrices = {
+  bedroom_1_nightly_rate: 180_000, bedroom_2_nightly_rate: 180_000,
+  both_bedrooms_nightly_rate: 230_000, additional_guest_nightly_rate: 30_000,
+  car_parking_nightly_rate: 35_000, motorcycle_parking_nightly_rate: 15_000,
+  early_checkin_hourly_rate: 20_000, late_checkout_hourly_rate: 20_000,
+  refundable_security_deposit: 100_000, no_smoking_penalty: 500_000,
+};
 
 describe("booking contracts", () => {
   it("rejects impossible calendar dates", () => {
@@ -61,6 +69,8 @@ describe("booking enquiries", () => {
     consent: "on",
     idempotencyKey: "d87c7965-11f9-4e93-8ff4-fb8a60a21321",
     website: "",
+    priceVersion: "1",
+    quotedTotalMinor: "180000",
   };
   it("allows an optional email when the required phone number is provided", () =>
     expect(bookingEnquirySchema.safeParse(request).success).toBe(true));
@@ -110,15 +120,27 @@ describe("booking enquiries", () => {
 });
 
 describe("money calculations", () => {
+  it("uses a changed catalog for every configurable charge", () => {
+    const prices = { ...initialSnowazPrices, bedroom_2_nightly_rate: 210_000,
+      additional_guest_nightly_rate: 40_000, car_parking_nightly_rate: 50_000,
+      late_checkout_hourly_rate: 25_000, refundable_security_deposit: 120_000 };
+    const receipt = calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 3, "bedroom_2", "car", 2, prices);
+    expect(receipt.baseNightlyRateMinor).toBe(210_000);
+    expect(receipt.additionalGuestChargeMinor).toBe(80_000);
+    expect(receipt.parkingChargeMinor).toBe(100_000);
+    expect(receipt.excessCheckoutChargeMinor).toBe(50_000);
+    expect(receipt.totalMinor).toBe(650_000);
+    expect(receipt.securityDepositMinor).toBe(120_000);
+  });
   it("prices one bedroom, two bedrooms, and additional guests", () => {
-    expect(calculateSnowazNightlyRateMinor(1, "bedroom_1")).toBe(180_000);
-    expect(calculateSnowazNightlyRateMinor(2, "bedroom_1")).toBe(180_000);
-    expect(calculateSnowazNightlyRateMinor(2, "bedroom_2")).toBe(180_000);
-    expect(calculateSnowazNightlyRateMinor(3, "bedroom_2")).toBe(210_000);
-    expect(calculateSnowazNightlyRateMinor(4, "both_bedrooms")).toBe(230_000);
-    expect(calculateSnowazNightlyRateMinor(5, "both_bedrooms")).toBe(230_000);
-    expect(calculateSnowazNightlyRateMinor(6, "both_bedrooms")).toBe(260_000);
-    expect(() => calculateSnowazNightlyRateMinor(3, "bedroom_1")).toThrow(RangeError);
+    expect(calculateSnowazNightlyRateMinor(1, "bedroom_1", initialSnowazPrices)).toBe(180_000);
+    expect(calculateSnowazNightlyRateMinor(2, "bedroom_1", initialSnowazPrices)).toBe(180_000);
+    expect(calculateSnowazNightlyRateMinor(2, "bedroom_2", initialSnowazPrices)).toBe(180_000);
+    expect(calculateSnowazNightlyRateMinor(3, "bedroom_2", initialSnowazPrices)).toBe(210_000);
+    expect(calculateSnowazNightlyRateMinor(4, "both_bedrooms", initialSnowazPrices)).toBe(230_000);
+    expect(calculateSnowazNightlyRateMinor(5, "both_bedrooms", initialSnowazPrices)).toBe(230_000);
+    expect(calculateSnowazNightlyRateMinor(6, "both_bedrooms", initialSnowazPrices)).toBe(260_000);
+    expect(() => calculateSnowazNightlyRateMinor(3, "bedroom_1", initialSnowazPrices)).toThrow(RangeError);
   });
 
   it("keeps the refundable security deposit separate from accommodation", () => {
@@ -127,7 +149,7 @@ describe("money calculations", () => {
         "2026-09-01",
         "2026-09-04",
         6,
-        "both_bedrooms",
+        "both_bedrooms", "none", 0, initialSnowazPrices,
       ),
     ).toEqual({
       nights: 3,
@@ -137,6 +159,8 @@ describe("money calculations", () => {
       nightlyRateMinor: 260_000,
       additionalGuests: 1,
       additionalGuestChargeMinor: 90_000,
+      additionalGuestNightlyRateMinor: 30_000,
+      lateCheckoutHourlyRateMinor: 20_000,
       parkingType: "none",
       parkingNightlyRateMinor: 0,
       parkingChargeMinor: 0,
@@ -148,8 +172,8 @@ describe("money calculations", () => {
     });
   });
   it("adds optional parking per night", () => {
-    expect(calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 2, "bedroom_1", "car").parkingChargeMinor).toBe(70_000);
-    expect(calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 2, "bedroom_2", "motorcycle").parkingChargeMinor).toBe(30_000);
+    expect(calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 2, "bedroom_1", "car", 0, initialSnowazPrices).parkingChargeMinor).toBe(70_000);
+    expect(calculateSnowazBookingReceipt("2026-09-01", "2026-09-03", 2, "bedroom_2", "motorcycle", 0, initialSnowazPrices).parkingChargeMinor).toBe(30_000);
   });
   it("calculates totals only with integer minor units", () => {
     expect(calculateStayTotalMinor(250_000, 3)).toBe(750_000);

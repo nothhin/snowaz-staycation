@@ -74,7 +74,7 @@ export const buildingAmenities = [
 export const houseRules = [
   "Quiet hours are from 11:00 PM to 7:00 AM",
   "Commercial photography is allowed",
-  "No smoking inside the unit; a ₱5,000 penalty applies",
+  "No smoking inside the unit; a penalty applies (see the current house rules rate)",
 ] as const;
 
 export const checkoutRules = [

@@ -1,6 +1,8 @@
 "use client";
 
 import { calculateSnowazBookingReceipt } from "@casa-marga/shared/booking";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
+import { usePricing } from "./PricingProvider";
 
 const php = new Intl.NumberFormat("en-PH", {
   style: "currency",
@@ -15,6 +17,12 @@ type BookingPriceReceiptProps = {
   bedroomChoice: "bedroom_1" | "bedroom_2" | "both_bedrooms";
   parkingType?: "none" | "car" | "motorcycle";
   excessCheckoutHours?: number;
+  snapshot?: {
+    stayNights: number; baseNightlyRateMinor: number; additionalGuestCount: number;
+    additionalGuestChargeMinor: number; parkingNightlyRateMinor: number;
+    parkingChargeMinor: number; excessCheckoutChargeMinor: number;
+    totalMinor: number; depositAmountMinor: number;
+  };
 };
 
 const bedroomLabels = {
@@ -30,7 +38,9 @@ export default function BookingPriceReceipt({
   bedroomChoice,
   parkingType = "none",
   excessCheckoutHours = 0,
+  snapshot,
 }: BookingPriceReceiptProps) {
+  const { prices } = usePricing();
   let receipt: ReturnType<typeof calculateSnowazBookingReceipt> | null = null;
   try {
     receipt = calculateSnowazBookingReceipt(
@@ -40,7 +50,21 @@ export default function BookingPriceReceipt({
       bedroomChoice,
       parkingType,
       excessCheckoutHours,
+      prices,
     );
+    if (snapshot) receipt = {
+      ...receipt, nights: snapshot.stayNights, baseNightlyRateMinor: snapshot.baseNightlyRateMinor,
+      additionalGuests: snapshot.additionalGuestCount,
+      additionalGuestChargeMinor: snapshot.additionalGuestChargeMinor,
+      additionalGuestNightlyRateMinor: snapshot.additionalGuestCount && snapshot.stayNights
+        ? snapshot.additionalGuestChargeMinor / (snapshot.additionalGuestCount * snapshot.stayNights) : 0,
+      parkingNightlyRateMinor: snapshot.parkingNightlyRateMinor,
+      parkingChargeMinor: snapshot.parkingChargeMinor,
+      excessCheckoutChargeMinor: snapshot.excessCheckoutChargeMinor,
+      lateCheckoutHourlyRateMinor: excessCheckoutHours ? snapshot.excessCheckoutChargeMinor / excessCheckoutHours : 0,
+      totalMinor: snapshot.totalMinor, securityDepositMinor: snapshot.depositAmountMinor,
+      remainingBalanceMinor: snapshot.totalMinor,
+    };
   } catch {
     // The form fields provide their own validation while the receipt waits for valid values.
   }
@@ -69,7 +93,7 @@ export default function BookingPriceReceipt({
           <small>SnowAZ Staycation</small>
           <strong>Digital booking receipt</strong>
         </div>
-        <span>Estimate</span>
+        <span>{snapshot ? "Agreed amount" : "Estimate"}</span>
       </header>
       <dl>
         <div>
@@ -98,7 +122,7 @@ export default function BookingPriceReceipt({
               Additional pax
               <br />
               <small>
-                {receipt.additionalGuests} pax × ₱300 × {receipt.nights} night
+                {receipt.additionalGuests} pax × {formatPhpMinor(receipt.additionalGuestNightlyRateMinor)} × {receipt.nights} night
                 {receipt.nights === 1 ? "" : "s"}
               </small>
             </dt>
@@ -107,7 +131,7 @@ export default function BookingPriceReceipt({
         ) : null}
         {receipt.excessCheckoutChargeMinor > 0 ? (
           <div className="booking-receipt-additional">
-            <dt>Excess checkout time<br /><small>{receipt.excessCheckoutHours} hour{receipt.excessCheckoutHours === 1 ? "" : "s"} × ₱200</small></dt>
+            <dt>Excess checkout time<br /><small>{receipt.excessCheckoutHours} hour{receipt.excessCheckoutHours === 1 ? "" : "s"} × {formatPhpMinor(receipt.lateCheckoutHourlyRateMinor)}</small></dt>
             <dd>+{php.format(receipt.excessCheckoutChargeMinor / 100)}</dd>
           </div>
         ) : null}
@@ -138,7 +162,7 @@ export default function BookingPriceReceipt({
         </div>
       </dl>
       <p>
-        The ₱1,000 security deposit is separate from the accommodation payment,
+        The {formatPhpMinor(receipt.securityDepositMinor)} security deposit is separate from the accommodation payment,
         verified manually, and refundable after checkout subject to the house
         rules and property inspection.
       </p>

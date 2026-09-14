@@ -4,6 +4,8 @@ import Link from "next/link";
 import { propertyProfile } from "@/lib/property";
 import { requireStaff } from "@/lib/server/admin-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getActivePricing } from "@/lib/server/pricing";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
 import { signOut } from "./actions";
 import { AdminMobileNav, AdminNav } from "./AdminNav";
 import { AdminLiveRefresh } from "./AdminLiveRefresh";
@@ -38,6 +40,7 @@ export default async function AdminDashboard({
   searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const staff = await requireStaff();
+  const { prices } = await getActivePricing();
   const params = await searchParams;
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.rpc("get_snowaz_admin_dashboard");
@@ -166,14 +169,15 @@ export default async function AdminDashboard({
               <p className={styles.eyebrow}>Stay rates</p>
               <h2>1BR or 2BR pricing</h2>
               <p>
-                One bedroom starts at ₱1,800/night. Both bedrooms are ₱2,300/night
-                for 4–5 guests, plus ₱300 for the sixth guest/night.
+                Bedroom 1 starts at {formatPhpMinor(prices.bedroom_1_nightly_rate)}/night,
+                Bedroom 2 at {formatPhpMinor(prices.bedroom_2_nightly_rate)}/night, and both bedrooms at {formatPhpMinor(prices.both_bedrooms_nightly_rate)}/night
+                for 4–5 guests, plus {formatPhpMinor(prices.additional_guest_nightly_rate)} for the sixth guest/night.
               </p>
               <span>Maximum 6 guests</span>
             </article>
             <article className={styles.compactPanel}>
               <p className={styles.eyebrow}>Deposit policy</p>
-              <h2>₱1,000 refundable security deposit</h2>
+              <h2>{formatPhpMinor(prices.refundable_security_deposit)} refundable security deposit</h2>
               <p>
                 Verify every payment in MariBank. The security deposit is separate
                 from the guest’s total accommodation payment.
@@ -185,7 +189,7 @@ export default async function AdminDashboard({
               <h2>Quiet hours: 11 PM–7 AM</h2>
               <p>
                 Commercial photography is allowed. No smoking inside—the stated
-                penalty is ₱5,000. At checkout, gather towels, discard trash,
+                penalty is {formatPhpMinor(prices.no_smoking_penalty)}. At checkout, gather towels, discard trash,
                 turn things off, return the keys, and lock up.
               </p>
               <span>Rules must be acknowledged</span>

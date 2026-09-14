@@ -46,7 +46,7 @@ export default async function DepositPage({
   if (!isValidDepositToken(token)) return <InvalidDepositLink token={token} />;
   const supabase = createPublicSupabaseClient();
   if (!supabase) throw new Error("Deposit service is unavailable.");
-  const { data, error } = await supabase.rpc("get_snowaz_deposit_request_with_excess", {
+  const { data, error } = await supabase.rpc("get_snowaz_priced_deposit_request", {
     token_hash: hashDepositToken(token),
   });
   if (error) throw new Error("Deposit service is unavailable.");
@@ -63,6 +63,13 @@ export default async function DepositPage({
         excessCheckoutChargeMinor: Number(row.excess_checkout_charge_minor ?? 0),
         depositStatus: row.deposit_status as string,
         depositAmountMinor: Number(row.deposit_amount_minor),
+        snapshot: {
+          stayNights: Number(row.stay_nights), baseNightlyRateMinor: Number(row.base_nightly_rate_minor),
+          additionalGuestCount: Number(row.additional_guest_count), additionalGuestChargeMinor: Number(row.additional_guest_charge_minor),
+          parkingNightlyRateMinor: Number(row.parking_nightly_rate_minor), parkingChargeMinor: Number(row.parking_charge_minor),
+          excessCheckoutChargeMinor: Number(row.excess_checkout_charge_minor), totalMinor: Number(row.total_minor),
+          depositAmountMinor: Number(row.deposit_amount_minor),
+        },
         depositTokenExpiresAt: row.deposit_token_expires_at
           ? new Date(row.deposit_token_expires_at as string)
           : null,
@@ -120,17 +127,12 @@ export default async function DepositPage({
           </span>
         </div>
         <DeviceStatusAlerts status={request.depositStatus} />
-        {!finished ? (
-          <GuestCountEditor
-            token={token}
-            checkIn={request.checkIn}
-            checkOut={request.checkOut}
-            initialGuests={request.guestCount}
-            initialBedroom={request.bedroomChoice}
-            initialParking={request.parkingType}
-            initialExcessCheckoutHours={request.excessCheckoutHours}
-          />
-        ) : (
+        {!finished ? <GuestCountEditor
+          token={token} checkIn={request.checkIn} checkOut={request.checkOut}
+          initialGuests={request.guestCount} initialBedroom={request.bedroomChoice}
+          initialParking={request.parkingType} initialExcessCheckoutHours={request.excessCheckoutHours}
+          snapshot={request.snapshot}
+        /> : (
           <BookingPriceReceipt
             checkIn={request.checkIn}
             checkOut={request.checkOut}
@@ -138,6 +140,7 @@ export default async function DepositPage({
             bedroomChoice={request.bedroomChoice as "bedroom_1" | "bedroom_2" | "both_bedrooms"}
             parkingType={request.parkingType}
             excessCheckoutHours={request.excessCheckoutHours}
+            snapshot={request.snapshot}
           />
         )}
         {finished ? (
@@ -172,7 +175,7 @@ export default async function DepositPage({
                   ending in <strong>5650</strong>.
                 </li>
                 <li>
-                  Enter exactly <strong>₱1,000</strong> and complete the
+                  Enter exactly <strong>{php.format(request.depositAmountMinor / 100)}</strong> and complete the
                   transfer.
                 </li>
                 <li>
@@ -220,7 +223,7 @@ export default async function DepositPage({
                   </p>
                   <MessengerReceiptLink
                     className={styles.messengerAction}
-                    message={`Hello SnowAZ! I am ${request.fullName}. I paid the ₱1,000 refundable security deposit for my stay on ${formatStayDate(request.checkIn)} to ${formatStayDate(request.checkOut)}. I am attaching my payment receipt for verification.`}
+                    message={`Hello SnowAZ! I am ${request.fullName}. I paid the ${php.format(request.depositAmountMinor / 100)} refundable security deposit for my stay on ${formatStayDate(request.checkIn)} to ${formatStayDate(request.checkOut)}. I am attaching my payment receipt for verification.`}
                   />
                 </article>
               </div>
@@ -245,11 +248,11 @@ export default async function DepositPage({
                 <input
                   name="confirmedAmount"
                   type="checkbox"
-                  value="1000"
+                  value={String(request.depositAmountMinor)}
                   required
                 />
                 <span>
-                  I sent exactly ₱1,000 and understand that SnowAZ will verify
+                  I sent exactly {php.format(request.depositAmountMinor / 100)} and understand that SnowAZ will verify
                   it in MariBank before confirming the reservation.
                 </span>
               </label>
@@ -272,7 +275,7 @@ export default async function DepositPage({
           <MessengerReceiptLink
             className={styles.messengerAction}
             label="Request cancellation or refund in Messenger"
-            message={`Hello SnowAZ! I am ${request.fullName}. I would like help cancelling my stay on ${formatStayDate(request.checkIn)} to ${formatStayDate(request.checkOut)}${request.depositStatus === "verified" || request.depositStatus === "refund_pending" ? " and requesting the return of my ₱1,000 security deposit" : ""}. Please confirm the next steps.`}
+            message={`Hello SnowAZ! I am ${request.fullName}. I would like help cancelling my stay on ${formatStayDate(request.checkIn)} to ${formatStayDate(request.checkOut)}${request.depositStatus === "verified" || request.depositStatus === "refund_pending" ? ` and requesting the return of my ${php.format(request.depositAmountMinor / 100)} security deposit` : ""}. Please confirm the next steps.`}
           />
           <div className={styles.helpActions}>
             <a

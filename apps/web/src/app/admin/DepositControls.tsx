@@ -38,7 +38,7 @@ export function DepositControls({ bookingId, bookingStatus = "pending", depositS
     const form = event.currentTarget;
     if (form.dataset.confirmed === "true") return;
     event.preventDefault();
-    const confirmed = await confirmAction("Confirm this ₱1,000 payment?", "Only continue after matching the sender and transaction reference in MariBank. This will confirm the booking and block its dates.", "Confirm payment");
+    const confirmed = await confirmAction("Confirm this security-deposit payment?", "Only continue after matching the amount, sender, and transaction reference in MariBank against this booking's deposit receipt. This will confirm the booking and block its dates.", "Confirm payment");
     if (confirmed) { form.dataset.confirmed = "true"; form.requestSubmit(); }
   };
 

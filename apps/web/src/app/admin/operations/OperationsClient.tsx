@@ -11,6 +11,8 @@ import {
   type OperationActionState,
 } from "../actions";
 import { showError, showSuccess } from "@/lib/sweetalert";
+import { usePricing } from "../../PricingProvider";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
 import styles from "../admin.module.css";
 const initial: OperationActionState = { status: "idle" };
 const money = new Intl.NumberFormat("en-PH", {
@@ -85,6 +87,7 @@ function BookingModal({
   booking: OpsBooking;
   onClose: () => void;
 }) {
+  const { prices } = usePricing();
   const [editState, editAction, editing] = useActionState(
     updateBookingOperations,
     initial,
@@ -167,7 +170,7 @@ function BookingModal({
                 <label>
                   <span>Excess checkout time</span>
                   <select name="excessCheckoutHours" defaultValue={String(booking.excessCheckoutHours ?? 0)}>
-                    <option value="0">None</option><option value="1">1 hour — ₱200</option><option value="2">2 hours — ₱400</option><option value="3">3 hours — ₱600</option>
+                    <option value="0">None</option>{[1,2,3].map(hours => <option key={hours} value={hours}>{hours} hour{hours>1?"s":""} — {formatPhpMinor(hours*prices.late_checkout_hourly_rate)}</option>)}
                   </select>
                   <small>More than 3 hours requires a half-day or additional-night quote.</small>
                 </label>

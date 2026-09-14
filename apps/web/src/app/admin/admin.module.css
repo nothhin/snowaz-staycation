@@ -5,6 +5,21 @@
   background: #f7f3ed;
   color: #1b263b;
 }
+.priceManageGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 16px; }
+.priceManageCard, .priceManageHistory { min-width: 0; background: #fff; border: 1px solid #e4ddd1; border-radius: 8px; padding: 22px; }
+.priceManageCard { display: grid; align-content: start; gap: 12px; }
+.priceManageCard h2 { margin: 5px 0; font-family: var(--font-display), serif; font-size: 23px; }
+.priceManageCard p, .priceManageCard small { color: #59636c; line-height: 1.5; }
+.priceManageCard > strong { font-size: 24px; }
+.priceManageCard form, .priceManageCard form label { display: grid; gap: 8px; }
+.priceManageCard input { width: 100%; min-width: 0; padding: 11px; font: inherit; border: 1px solid #c8c1b5; border-radius: 4px; }
+.priceManageCard form > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.priceManageCard button { min-height: 42px; padding: 8px 15px; border: 0; border-radius: 4px; color: white; background: #1b263b; cursor: pointer; }
+.priceManageCard button:disabled { opacity: .5; cursor: wait; }
+.priceManageHistory { margin-top: 24px; }
+.priceManageHistory > div { display: grid; gap: 8px; }
+.priceManageHistory article { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; padding: 12px 0; border-bottom: 1px solid #e4ddd1; }
+.priceManageHistory article small { color: #59636c; }
 .sidebar {
   height: 100vh;
   position: sticky;

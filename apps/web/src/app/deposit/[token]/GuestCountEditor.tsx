@@ -6,6 +6,8 @@ import BookingPriceReceipt from "../../BookingPriceReceipt";
 import { showError, showSuccess } from "@/lib/sweetalert";
 import { updatePendingGuestCount, type GuestCountState } from "./actions";
 import styles from "./deposit.module.css";
+import { usePricing } from "../../PricingProvider";
+import { formatPhpMinor } from "@casa-marga/shared/pricing";
 
 const initialState: GuestCountState = { status: "idle", message: "" };
 
@@ -17,6 +19,7 @@ export function GuestCountEditor({
   initialBedroom,
   initialParking,
   initialExcessCheckoutHours,
+  snapshot,
 }: {
   token: string;
   checkIn: string;
@@ -25,7 +28,9 @@ export function GuestCountEditor({
   initialBedroom: string;
   initialParking: "none" | "car" | "motorcycle";
   initialExcessCheckoutHours: number;
+  snapshot: React.ComponentProps<typeof BookingPriceReceipt>["snapshot"];
 }) {
+  const { prices } = usePricing();
   const [guests, setGuests] = useState(initialGuests);
   const [bedroom, setBedroom] = useState<
     "bedroom_1" | "bedroom_2" | "both_bedrooms"
@@ -41,7 +46,7 @@ export function GuestCountEditor({
     initialState,
   );
   useEffect(() => {
-    if (state.status === "success") void showSuccess(state.message);
+    if (state.status === "success") { void showSuccess(state.message); window.location.reload(); }
     if (state.status === "error") void showError(state.message);
   }, [state]);
   const chooseGuests = (value: number) => {
@@ -68,9 +73,7 @@ export function GuestCountEditor({
           <span>Excess checkout time (optional)</span>
           <select name="excessCheckoutHours" value={excessCheckoutHours} onChange={(event) => setExcessCheckoutHours(Number(event.target.value))}>
             <option value="0">No excess time</option>
-            <option value="1">1 hour — ₱200</option>
-            <option value="2">2 hours — ₱400</option>
-            <option value="3">3 hours — ₱600</option>
+            {[1,2,3].map(hours => <option key={hours} value={hours}>{hours} hour{hours>1?"s":""} — {formatPhpMinor(hours*prices.late_checkout_hourly_rate)}</option>)}
           </select>
           <small>Regular checkout is 11:00 AM. More than 3 hours may require a half-day or additional night, subject to availability.</small>
         </label>
@@ -84,8 +87,8 @@ export function GuestCountEditor({
             }
           >
             <option value="none">No parking</option>
-            <option value="car">Car — ₱350/night</option>
-            <option value="motorcycle">Motorcycle — ₱150/night</option>
+            <option value="car">Car — {formatPhpMinor(prices.car_parking_nightly_rate)}/night</option>
+            <option value="motorcycle">Motorcycle — {formatPhpMinor(prices.motorcycle_parking_nightly_rate)}/night</option>
           </select>
         </label>
         <label>
@@ -134,6 +137,7 @@ export function GuestCountEditor({
         bedroomChoice={bedroom}
         parkingType={parkingType}
         excessCheckoutHours={excessCheckoutHours}
+        snapshot={guests===initialGuests && bedroom===initialBedroom && parkingType===initialParking && excessCheckoutHours===initialExcessCheckoutHours ? snapshot : undefined}
       />
       <small>
         Changes are allowed only before payment details or a receipt are
